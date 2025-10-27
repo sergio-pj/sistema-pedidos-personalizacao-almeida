@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | Gerenciamento de Pedidos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+</head>
+<body>
+    
+    <header>
+        <img src="logo.png" alt="Logo Personalizações Almeida" class="logo">
+        <nav>
+            <a href="index.html">Dashboard (Pedidos)</a>
+            <a href="novo-pedido.html">Novo Pedido</a>
+            <a href="historico.html">Histórico de Clientes</a>
+        </nav>
+    </header>
+
+    <h1>Pedidos em Aberto</h1>
+    <div id="statusResumo">
+        <p>Pedidos Pendentes: <span id="contagemPendentes">0</span></p>
+    </div>
+
+    <div id="resumoFinanceiro">
+        <p>Faturamento Total (Todos os Pedidos): <span id="faturamentoTotal">R$ 0,00</span></p>
+        <p>Pedidos Entregues (Faturado): <span id="valorFaturado">R$ 0,00</span></p>
+    </div>
+
+        <button onclick="window.location.href='novo-pedido.html'">+ Cadastrar Novo Pedido</button>
+    
+    <div id="filtros">
+    <label for="filtroStatus">Filtrar por Status:</label>
+    <select id="filtroStatus" onchange="carregarPedidos()">
+        <option value="todos">Todos</option>
+        <option value="A Fazer">A Fazer</option>
+        <option value="Entregue">Entregue</option>
+    </select>
+    
+    <label for="filtroDataEntrega">Entrega:</label>
+    <select id="filtroDataEntrega" onchange="carregarPedidos()">
+        <option value="todos">Todas as Datas</option>
+        <option value="hoje">Entrega Hoje</option>
+    </select>
+    <label for="filtroBusca">Buscar por Cliente/Serviço:</label>
+    <input type="text" id="filtroBusca" onkeyup="carregarPedidos()" placeholder="Nome ou Descrição">
+</div>
+    <table id="tabelaPedidos">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Entrega</th>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Valor</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script src="js/main.js"></script>
+    <a href="novo-pedido.html" class="fab-button" title="Novo Pedido">+</a>
+</body>
+</html>

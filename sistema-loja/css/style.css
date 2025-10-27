@@ -1,0 +1,304 @@
+/* Estilos Gerais com a Nova Paleta */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    /* MUDANÇA: Fundo principal agora é o azul marinho da logo */
+    background-color: #2A4365; 
+    color: #343a40; /* Cinza escuro para texto */
+}
+
+/* Navegação e Cabeçalho */
+header {
+    /* MUDANÇA: Fundo do cabeçalho agora é branco para destacar a logo */
+    background-color: white; 
+    padding: 15px 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
+    display: flex; 
+    align-items: center;
+}
+
+/* Estilo da Logo no cabeçalho (próximo passo) */
+.logo {
+    height: 40px;
+    margin-right: 20px;
+}
+
+nav a {
+    /* MUDANÇA: Links da navegação agora são azul marinho */
+    color: #2A4365; 
+    text-decoration: none;
+    margin-right: 20px;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+h1 {
+    padding: 20px 30px;
+    color: #2A4365; /* ATUALIZADO: Azul marinho principal */
+}
+
+/* Botões e Formulários */
+button, button[type="submit"] {
+    background-color: #2A4365; /* ATUALIZADO: Azul marinho para botões principais */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 0 5px 20px 0; /* Ajuste de margem */
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* Botão de Cadastrar em index.html */
+.btn-cadastrar {
+    background-color: #17a2b8; /* Um azul mais claro para destaque */
+    margin-left: 30px;
+}
+
+/* Filtros (index.html) */
+#filtros {
+    padding: 15px 30px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin: 0 30px 20px 30px;
+}
+
+#filtros label {
+    margin-right: 10px;
+}
+
+#filtros input, #filtros select {
+    padding: 8px;
+    margin-right: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Tabela */
+#tabelaPedidos, #tabelaHistorico {
+    width: calc(100% - 60px); /* Ajuste para ter margens */
+    margin: 20px 30px;
+    border-collapse: collapse;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    background-color: white;
+}
+
+#tabelaPedidos th, #tabelaHistorico th {
+    background-color: #2A4365; /* ATUALIZADO: Azul marinho principal */
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+#tabelaPedidos td, #tabelaHistorico td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+#tabelaPedidos tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Botões de Ação na Tabela */
+.btn-editar {
+    background-color: #ffc107; /* MANTIDO: Amarelo para Editar */
+}
+.btn-excluir {
+    background-color: #dc3545; /* MANTIDO: Vermelho para Excluir */
+}
+
+/* CLASSES DE DESTAQUE (CHAMADAS NO SEU JAVASCRIPT) */
+.pedido-entregue {
+    background-color: #e9ecef; /* ATUALIZADO: Cinza suave */
+    color: #6c757d;
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+.pedido-atrasado {
+    background-color: #f8d7da; /* MANTIDO: Vermelho claro para atrasos */
+    color: #721c24;
+    font-weight: bold;
+}
+
+/* Estilo para Botões de Ação na Tabela */
+.btn-editar {
+    background-color: #ffc107; /* Amarelo */
+    margin-left: 5px;
+}
+.btn-editar:hover {
+    background-color: #e0a800;
+}
+
+.btn-excluir {
+    background-color: #dc3545; /* Vermelho */
+    margin-left: 5px;
+}
+.btn-excluir:hover {
+    background-color: #c82333;
+}
+
+/* Estilo para o Resumo de Status (index.html) */
+#statusResumo {
+    background-color: #ffc107; /* Amarelo de atenção */
+    color: #343a40;
+    padding: 10px 30px;
+    margin: 0 30px 20px 30px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+#statusResumo span {
+    font-size: 1.5em;
+    margin-left: 10px;
+}
+
+/* Estilo para o Resumo Financeiro (index.html) */
+#resumoFinanceiro {
+    background-color: #e9ecef; /* Cinza claro para contraste */
+    padding: 15px 30px;
+    margin: 0 30px 20px 30px;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+#resumoFinanceiro p {
+    margin: 5px 0;
+    font-size: 1em;
+}
+
+#resumoFinanceiro span {
+    font-weight: bold;
+    color: #2A4365;
+    font-size: 1.2em;
+}
+
+/* Podemos dar um destaque maior para o Faturado */
+#valorFaturado {
+    color: #28a745; /* Verde para sucesso/faturamento */
+}
+
+/* Estilos Específicos para o Formulário Novo Pedido */
+#formNovoPedido {
+    /* Centraliza e limita a largura do formulário na tela */
+    width: calc(100% - 60px); 
+    max-width: 900px; /* Limite máximo para não ficar muito largo */
+    margin: 20px 30px;
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Define a linha de campos lado a lado */
+.row {
+    display: flex;
+    gap: 20px; /* Espaço entre os campos */
+    margin-bottom: 20px;
+}
+
+/* Garante que os campos usem todo o espaço disponível */
+.form-group {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilo unificado para Inputs, Selects e Textareas */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px; /* Espaçamento entre o label e o campo */
+    border: 1px solid #ced4da; /* Borda suave */
+    border-radius: 4px;
+    box-sizing: border-box; /* Garante que padding e borda não aumentem o tamanho total */
+}
+
+/* Ajuste para a Descrição do Serviço (textarea) */
+.form-group textarea {
+    resize: vertical; /* Permite redimensionar apenas verticalmente */
+    min-height: 100px;
+}
+
+/* Força a Descrição a ocupar 100% da largura em sua linha */
+.row.full-width {
+    width: 100%;
+}
+.row.full-width .form-group {
+    flex: none;
+    width: 100%;
+}
+
+/* Botão de Ação Flutuante (FAB) */
+.fab-button {
+    position: fixed; /* Fixa o botão na tela */
+    bottom: 30px;
+    right: 30px;
+    background-color: #ffc107; /* Amarelo de destaque */
+    color: #343a40; /* Cor do texto/sinal */
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 36px;
+    line-height: 60px; /* Centraliza o '+' */
+    text-align: center;
+    text-decoration: none; /* Remove sublinhado do link */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000; /* Garante que fique acima de outros elementos */
+    transition: background-color 0.2s;
+    font-weight: bold;
+}
+
+.fab-button:hover {
+    background-color: #e0a800; /* Amarelo mais escuro ao passar o mouse */
+    color: white;
+}
+
+/* NOVO ESTILO SOFISTICADO PARA A BUSCA DE HISTÓRICO (historico.html) */
+#filtrosBusca {
+    /* Mesmo estilo de card de fundo que usamos no Resumo Financeiro */
+    background-color: #e9ecef; 
+    padding: 20px 30px; /* Mais padding para parecer um painel */
+    margin: 0 30px 20px 30px;
+    border-radius: 8px; /* Borda um pouco maior para sofisticação */
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Sombra suave */
+    
+    display: flex;
+    align-items: center;
+}
+
+#filtrosBusca label {
+    font-weight: bold;
+    margin-right: 15px;
+    color: #2A4365; /* Usando o azul marinho principal */
+    font-size: 1.1em;
+}
+
+#filtrosBusca input {
+    /* Estilo de input padronizado e FORÇAMOS O FUNDO BRANCO */
+    background-color: white; 
+    padding: 10px 12px;
+    border: 1px solid #ced4da; 
+    border-radius: 4px;
+    width: 350px; 
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    font-size: 1em; 
+}
+
+#filtrosBusca input:focus {
+    border-color: #ffc107; /* Amarelo de destaque ao focar */
+    outline: none;
+}

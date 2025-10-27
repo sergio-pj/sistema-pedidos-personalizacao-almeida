@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Novo Pedido</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+</head>
+<body>
+    
+    <header>
+        <img src="logo.png" alt="Logo Personalizações Almeida" class="logo">
+        <nav>
+            <a href="index.html">Dashboard (Pedidos)</a>
+            <a href="novo-pedido.html">Novo Pedido</a>
+            <a href="historico.html">Histórico de Clientes</a>
+        </nav>
+    </header>
+    <h1>Novo Pedido</h1>
+
+    <form id="formNovoPedido">
+    
+    <div class="row">
+        <div class="form-group">
+            <label for="nomeCliente">Nome do Cliente:</label>
+            <input type="text" id="inputNomeCliente" required>
+        </div>
+        <div class="form-group">
+            <label for="contato">Contato/WhatsApp:</label>
+            <input type="text" id="inputContato" required>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="form-group">
+            <label for="valorTotal">Valor Total (R$):</label>
+            <input type="number" id="inputValorTotal" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="formaPagamento">Forma de Pagamento:</label>
+            <select id="inputFormaPagamento">
+                <option value="Pendente">Pendente</option>
+                <option value="Pix">PIX</option>
+                <option value="Cartao">Cartão</option>
+                <option value="Dinheiro">Dinheiro</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="dataEntrega">Data de Entrega:</label>
+            <input type="date" id="inputDataEntrega" required>
+        </div>
+    </div>
+
+    <div class="row full-width">
+        <div class="form-group">
+            <label for="descricaoServico">Descrição do Serviço:</label>
+            <textarea id="inputDescricao" required></textarea>
+        </div>
+    </div>
+    
+    <button type="submit">Salvar Pedido</button>
+    
+</form>
+
+    <script src="js/main.js"></script>
+    <a href="novo-pedido.html" class="fab-button" title="Novo Pedido">+</a> 
+</body>
+</html>
