@@ -92,6 +92,7 @@ function buscarHistorico() {
         
         // 6. CÉLULA DE AÇÕES (Para manter o alinhamento de 6 colunas)
         const acoesCell = linha.insertCell();
+        // Não precisamos de botões no histórico, mas podemos adicionar um botão 'Ver'
         acoesCell.textContent = 'Ver histórico'; 
         
         // APLICAÇÃO DAS CLASSES DE DESTAQUE PARA SOFISTICAÇÃO VISUAL
@@ -199,6 +200,7 @@ function carregarPedidos() {
         // Célula Ações
         const acoesCell = linha.insertCell();
         
+        // Se o pedido NÃO foi entregue, ele recebe os botões Entregue e Editar
         if (pedido.status !== 'Entregue') {
             const btnEntregue = document.createElement('button');
             btnEntregue.textContent = 'Entregue';
@@ -213,17 +215,18 @@ function carregarPedidos() {
                 window.location.href = `novo-pedido.html?id=${pedido.id}`;
             });
             acoesCell.appendChild(btnEditar);
-
-            const btnExcluir = document.createElement('button');
-            btnExcluir.textContent = 'Excluir';
-            btnExcluir.className = 'btn-excluir';
-            btnExcluir.dataset.pedidoId = pedido.id;
-            btnExcluir.addEventListener('click', excluirPedido);
-            acoesCell.appendChild(btnExcluir);
-
         } else {
+            // Se o pedido FOI entregue, ele recebe o texto 'Concluído'
             acoesCell.textContent = 'Concluído';
         }
+        
+        // ADICIONAMOS A LÓGICA DO BOTÃO EXCLUIR PARA TODOS (Entregues ou Não)
+        const btnExcluir = document.createElement('button');
+        btnExcluir.textContent = 'Excluir';
+        btnExcluir.className = 'btn-excluir';
+        btnExcluir.dataset.pedidoId = pedido.id;
+        btnExcluir.addEventListener('click', excluirPedido);
+        acoesCell.appendChild(btnExcluir);
         
         // Opcional: Adicionar classe para destaque visual (via CSS)
         if (pedido.status === 'Entregue') {
