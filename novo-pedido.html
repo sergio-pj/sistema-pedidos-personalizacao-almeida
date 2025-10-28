@@ -20,54 +20,86 @@
 
     <form id="formNovoPedido">
     
-    <div class="row">
-        <div class="form-group">
-            <label for="nomeCliente">Nome do Cliente:</label>
-            <input type="text" id="inputNomeCliente" required>
+        <div class="secao-form">
+            <h3>1. Informações Básicas</h3>
+            <div class="row">
+                <div class="form-group">
+                    <label for="nomeCliente">Nome do Cliente:</label>
+                    <input type="text" id="inputNomeCliente" required>
+                </div>
+                <div class="form-group">
+                    <label for="contato">Contato/WhatsApp:</label>
+                    <input type="text" id="inputContato">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="numeroPedido">Nº do Pedido (Controle Interno):</label>
+                    <input type="text" id="inputNumeroPedido" placeholder="Ex: 1910-25">
+                </div>
+                <div class="form-group">
+                    <label for="formaPagamento">Forma de Pagamento (Total):</label>
+                    <select id="inputFormaPagamento">
+                        <option value="Pendente">Pendente</option>
+                        <option value="Pix">PIX</option>
+                        <option value="Debito">Débito</option>
+                        <option value="Credito">Crédito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="A Combinar">A Combinar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dataEntrega">Data de Entrega:</label>
+                    <input type="date" id="inputDataEntrega" required>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="contato">Contato/WhatsApp:</label>
-            <input type="text" id="inputContato" required>
-        </div>
-    </div>
-    
-    <div class="row full-width">
-    <div class="form-group">
-        <label for="inputDetalhesTamanho">Detalhes de Tamanho / Quantidade (Ex: 5 G, 10 P, 4 M, 1 GG)</label>
-        <textarea id="inputDetalhesTamanho" rows="4" placeholder="Detalhe a divisão de tamanhos, cores ou outras especificações de produção."></textarea>
-    </div>
-    </div>
 
-    <div class="row">
-        <div class="form-group">
-            <label for="valorTotal">Valor Total (R$):</label>
-            <input type="number" id="inputValorTotal" step="0.01" required>
-        </div>
-        <div class="form-group">
-            <label for="formaPagamento">Forma de Pagamento:</label>
-            <select id="inputFormaPagamento">
-                <option value="Pendente">Pendente</option>
-                <option value="Pix">PIX</option>
-                <option value="Cartao">Cartão</option>
-                <option value="Dinheiro">Dinheiro</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="dataEntrega">Data de Entrega:</label>
-            <input type="date" id="inputDataEntrega" required>
-        </div>
-    </div>
 
-    <div class="row full-width">
-        <div class="form-group">
-            <label for="descricaoServico">Descrição do Serviço:</label>
-            <textarea id="inputDescricao" required></textarea>
+        <div class="secao-form">
+            <h3>2. Itens do Pedido (Total de Itens: <span id="totalItensBadge">0</span>)</h3>
+            <table class="tabela-itens">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qtd.</th>
+                        <th>Preço Un. (R$)</th>
+                        <th>Total R$</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabelaItens">
+                    </tbody>
+            </table>
+            <button type="button" id="btnAddItem" class="btn-adicionar-item">+ Adicionar Item</button>
         </div>
-    </div>
-    
-    <button type="submit">Salvar Pedido</button>
-    
-</form>
+
+
+        <div class="secao-form">
+            <h3>3. Detalhes e Valores</h3>
+            
+            <label for="inputDetalhesTamanho">Detalhes de Tamanho / Produção (Ex: Cores, Tamanhos P, M, G, GG):</label>
+            <textarea id="inputDetalhesTamanho" rows="4" placeholder="Detalhe a divisão de tamanhos, cores ou outras especificações de produção (Ex: 5 P, 4 M, 1 G)."></textarea>
+            
+            <div class="campos-duplos">
+                <div>
+                    <label for="inputValorSinal">Valor do Sinal/Adiantamento (R$):</label>
+                    <input type="number" id="inputValorSinal" step="0.01" value="0.00" min="0">
+                </div>
+                <div>
+                    <label for="inputValorTotal">Valor Total do Pedido (R$):</label>
+                    <input type="number" id="inputValorTotal" step="0.01" value="0.00" min="0" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="acoes-form">
+             <button type="submit" class="btn-salvar-pedido">Salvar Pedido</button>
+             <a href="index.html" class="link-cancelar">Cancelar e Voltar</a>
+        </div>
+        
+    </form>
 
     <script src="js/main.js"></script>
     <a href="novo-pedido.html" class="fab-button" title="Novo Pedido">+</a> 

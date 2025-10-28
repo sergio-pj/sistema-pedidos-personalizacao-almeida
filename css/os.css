@@ -1,209 +1,235 @@
-/* Estilos Específicos para a tela da OS */
+/* ====================================================================
+   ESTILOS GERAIS/CARD PARA ORDEM DE SERVIÇO (os.html)
+   (Baseado na estrutura: main.os-container > #osDetalhesCard)
+   ==================================================================== */
 
-#os-container {
-    padding: 20px;
-    background: #fff; /* Fundo branco para a OS */
+/* Estilo para a tag MAIN, garantindo padding e o fundo da página (que vem do style.css) */
+.os-container {
+    padding-top: 20px;
+    padding-bottom: 50px;
+}
+
+/* --- Card Principal da OS (Substitui o #os-container antigo) --- */
+#osDetalhesCard {
+    width: calc(100% - 60px); 
+    max-width: 900px; 
+    margin: 20px auto; 
+    padding: 30px;
+    background-color: white; /* Card branco para contraste */
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 900px; /* Limita a largura para parecer um documento */
-    margin: 40px auto;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); 
+    color: #343a40; /* Texto escuro dentro do card */
 }
 
-/* Estilos de Estrutura da OS (Injetados pelo JS) */
-.os-header, .os-cliente, .os-producao, .os-notas {
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-
-.os-header h2 {
-    color: #333;
-    font-size: 24px;
+#osTitulo {
+    color: #2A4365; /* Azul marinho */
     text-align: center;
+    display: block;
+    border-bottom: 2px solid #a0a0a0; /* Amarelo de destaque */
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 100%;
 }
 
-.os-cliente h3, .os-producao h3 {
-    color: #444;
-    border-left: 5px solid #007bff; /* Linha azul para destaque */
+/* --- Estilo de Seções (section.os-secao) --- */
+.os-secao {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #e9ecef; /* Borda cinza claro */
+    border-radius: 5px;
+}
+
+.os-secao h2 {
+    color: #2A4365; /* Título principal da seção */
+    font-size: 1.2em;
+    border-left: 5px solid #a0a0a0; /* Linha amarela de destaque */
     padding-left: 10px;
-    margin-top: 20px;
+    margin-top: 0;
     margin-bottom: 15px;
 }
 
-/* Campos de informação */
-.os-cliente p, .os-producao p {
+.os-secao h3 {
+    color: #444; /* Subtítulo (Itens do Pedido, etc.) */
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* Layout de Grid para Campos Lado a Lado (Valores e Dados do Cliente) */
+.os-campo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px 30px; /* Espaçamento entre as colunas */
+    margin-top: 15px;
+}
+
+.os-secao p {
     margin: 5px 0;
 }
 
+.os-secao strong {
+    color: #343a40;
+}
+
+/* Estilo para o campo de Anotações (TEXTAREA) */
+#osAnotacoes {
+    width: 100%;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f8f9fa; 
+    box-sizing: border-box;
+    font-size: 1em;
+    min-height: 100px;
+}
+
+/* --- Estilos da Tabela de Itens --- */
+.tabela-itens-os {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.95em;
+}
+
+.tabela-itens-os th, .tabela-itens-os td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.tabela-itens-os th {
+    background-color: #f1f1f1;
+    color: #2A4365;
+}
+
+/* Estilo para Status */
 .os-status {
     padding: 2px 8px;
     border-radius: 4px;
     color: white;
     font-weight: bold;
+    display: inline-block;
 }
-
-/* Cores de Status */
-.os-status-afazer { background-color: #f7a83d; } /* Laranja */
+.os-status-afazer { background-color: #cf9f00; } /* Laranja */
 .os-status-entregue { background-color: #28a745; } /* Verde */
 
-.detalhe-grande {
-    font-size: 16px;
-    font-style: italic;
-    white-space: pre-wrap; /* Permite quebras de linha na descrição */
-}
-
-.os-info-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 colunas para data, pagamento e valor */
-    gap: 20px;
-    margin-top: 15px;
-    text-align: center;
-}
-
-.os-info-grid h4 {
-    margin-bottom: 5px;
-    color: #666;
-    border-bottom: 1px dashed #eee;
-    padding-bottom: 5px;
-}
-
-.valor-total-os {
-    font-size: 18px;
+/* Estilo para o Valor Total (Destacado) */
+#osValorTotal {
+    font-size: 1.2em;
     font-weight: bold;
     color: #dc3545; /* Vermelho para o valor total */
 }
 
-/* Estilos da Área de Anotações */
-.os-notas h4 {
-    margin-bottom: 10px;
-}
-
-.espaco-notas {
-    height: 100px; /* Espaço para anotações manuais na impressão */
-    border: 1px solid #ccc;
-    padding: 5px;
-}
-
-/* Estilos dos botões de ação (visível na tela, mas não na impressão) */
-#os-actions {
+/* --- Botões e Rodapé --- */
+.os-botoes-rodape {
     text-align: center;
-    padding: 20px 0;
+    margin-top: 30px;
 }
 
-#os-actions button, #os-actions a {
+.btn-os-imprimir,
+.btn-os-editar,
+.btn-os-voltar {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
     margin: 0 10px;
+    transition: background-color 0.2s;
 }
 
-/* Estilos para o Logo e Header */
-.os-print-header {
-    display: none; /* Esconde na visualização normal, aparece SÓ na impressão */
-    align-items: center;
-    justify-content: center;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-    border-bottom: 3px solid #333;
+.btn-os-imprimir {
+    background-color: #2A4365;
+    color: white;
 }
 
-.os-print-header h1 {
-    font-size: 28px;
-    margin-left: 20px;
-    color: #333;
+.btn-os-editar {
+    background-color: #a0a0a0; /* Amarelo */
+    color: #343a40;
 }
 
-.os-logo {
-    width: 80px; /* Tamanho da logo na impressão */
-    height: auto;
+.btn-os-voltar {
+    background-color: #6c757d; /* Cinza */
+    color: white;
 }
 
 /* ================================================= */
 /* ESTILOS PARA IMPRESSÃO (@media print) */
+/* (Estes estão corretos e foram mantidos) */
 /* ================================================= */
 
 @media print {
+    /* Oculta cabeçalho principal e botões na impressão */
+    header,
+    .os-botoes-rodape {
+        display: none;
+    }
     
-    /* 1. Ocultar o que não deve ser impresso */
-    header:not(.os-print-header), 
-    .container, 
-    #os-actions,
-    .btn-voltar,
-    .os-status {
-        display: none !important;
-    }
-
-    /* 2. Formato do Papel A4 */
-    @page {
-        size: A4;
-        margin: 10mm; /* Margem da folha */
-    }
-
-    /* 3. A OS deve ocupar 100% da largura do papel */
     body {
-        background: none;
+        padding-top: 0;
+        background-color: white;
     }
     
-    #os-container {
-        margin: 0;
+    /* Remove a estilização de card para a impressão */
+    #osDetalhesCard {
         box-shadow: none;
         border: none;
-        max-width: 100%;
-        padding: 0;
+        margin: 0;
     }
     
-    /* 4. Mostrar o cabeçalho de impressão (com logo) */
-    .os-print-header {
-        display: flex !important; /* Mostra o cabeçalho com a logo */
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    /* 5. Estilos de impressão */
-    .os-cliente h3, .os-producao h3 {
-        border-left: none; /* Remove a linha colorida na impressão */
-        border-bottom: 1px solid #333;
-        padding-left: 0;
-        margin-top: 15px;
-        margin-bottom: 5px;
-        color: #000;
-        font-size: 16px;
-    }
-    
-    .os-header h2 {
-        font-size: 22px;
-    }
-    
-    .os-info-grid {
-        display: block; /* Volta a ser vertical na impressão */
-        text-align: left;
-    }
-    
-    .os-info-grid > div {
-        margin-bottom: 10px;
-    }
-    
-    .os-info-grid h4 {
-        display: inline;
-        margin-right: 10px;
-        border-bottom: none;
-    }
-
     /* Garante que o texto fique preto na impressão */
     * {
         color: #000 !important;
     }
-    
-    /* Oculta os links do WhatsApp na impressão */
-    .link-whatsapp {
-        display: none !important;
-    }
 }
 
-/* Estilo para o novo botão Reabrir */
-.btn-reabrir {
-    background-color: #ffc107; /* Amarelo/Aviso */
-    color: #333; /* Cor do texto escura */
-    border: 1px solid #ffc107;
+#osValorRestante{
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #28a745; /* Verde para o valor restante */
 }
 
-.btn-reabrir:hover {
-    background-color: #e0a800; /* Um pouco mais escuro no hover */
+.os-actions {
+    color: #000;
+    display: block;
+    font-family: Arial, sans-serif;
+    padding-bottom: 50px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 0px;
+    text-align: center;
+    unicode-bidi: isolate;
+}
+
+.os-logo {
+    margin-left: auto;
+    margin-right: auto;
+    width: 150px;
+    padding-bottom: 20px;
+    padding-left: 50px;
+}
+
+/* Container que envolve a Logo e o Título/Número da OS */
+.os-header-topo {
+    display: flex;
+    align-items: center; /* Centraliza verticalmente o título e a logo */
+    margin-bottom: 20px; /* Adiciona um espaço abaixo do cabeçalho */
+    padding: 0 150px; /* Opcional: um pequeno padding lateral */
+}
+
+/* Estilo para a Logo (ajuste o max-width conforme o tamanho desejado) */
+.logo-os {
+    max-width: 150px; /* Exemplo: limite o tamanho da logo */
+    height: auto;
+}
+
+/* Ajusta o H1 para remover margens que possam atrapalhar o alinhamento */
+#osTitulo {
+    font-size: 1.5em; /* Ajuste o tamanho da fonte se necessário */
+    margin: 0; /* Remove margens padrão do H1 */
+    text-align: right; /* Garante que o texto fique alinhado à direita se houver mais espaço */
 }

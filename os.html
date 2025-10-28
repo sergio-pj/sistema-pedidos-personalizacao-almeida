@@ -2,28 +2,86 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Ordem de Serviço (OS)</title>
+    <title>OS N° [NÚMERO DA OS]</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/os.css"> 
+    <link rel="stylesheet" href="css/os.css">
     <link rel="icon" type="image/png" href="logo.png">
 </head>
 <body>
 
-    <header class="only-print os-print-header">
-        <img src="logo.png" alt="Personalizações Almeida's Logo" class="os-logo">
-        <h1>Personalizações Almeida's</h1>
+    <header>
+        <img src="logo.png" alt="Logo Personalizações Almeida" class="logo">
+        <nav>
+            <a href="index.html">Dashboard (Pedidos)</a>
+            <a href="novo-pedido.html">Novo Pedido</a>
+            <a href="historico.html">Histórico de Clientes</a>
+        </nav>
     </header>
     
-    <div id="os-container">
-        <h1>Carregando Ordem de Serviço...</h1>
-    </div>
+    <main class="os-container">
+        <div id="osDetalhesCard" class="os-detalhes-card">
+            <div class="os-header-topo">
+                <div class="os-logo-container">
+                <img src="logo.png" alt="Logo" class="logo-os">
+                </div>
+    
+                <h1 id="osTitulo">ORDEM DE SERVIÇO N° ...</h1>
+            </div>
+            <section class="os-secao">
+                <h2>1. Dados do Cliente e Pedido</h2>
+                <div class="os-campo-grid">
+                    <p><strong>Cliente:</strong> <span id="osCliente"></span></p>
+                    <p><strong>Contato:</strong> <span id="osContato"></span></p>
+                    <p><strong>Nº do Pedido:</strong> <span id="osNumPedido"></span></p>
+                    <p><strong>Status:</strong> <span id="osStatus"></span></p>
+                    <p><strong>Forma de Pagamento:</strong> <span id="osFormaPagamento"></span></p>
+                    <p><strong>Data de Entrega:</strong> <span id="osDataEntrega"></span></p>
+                </div>
+            </section>
 
-    <div id="os-actions">
-        <button id="btnImprimirOS" onclick="window.print()">Imprimir OS</button>
-        <button id="btnEditarPedido" class="btn-editar">Editar Pedido</button>
-        <a href="index.html" class="btn-voltar">Voltar para Dashboard</a>
-    </div>
+            <section class="os-secao">
+                <h2>2. Detalhes do Serviço/Produto</h2>
+                <p><strong>Descrição do Serviço:</strong> <span id="osDescricaoServico"></span></p>
+                
+                <h3>Itens do Pedido</h3>
+                <table id="osTabelaItens" class="tabela-itens-os">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qtd.</th>
+                            <th>Preço Un. (R$)</th>
+                            <th>Total R$</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
 
+                <h3>Detalhes de Produção</h3>
+                <p id="osDetalhesProducao"></p>
+                <p><strong>Data de Emissão:</strong> <span id="osDataEmissao"></span></p>
+            </section>
+            
+            <section class="os-secao">
+                <h2>3. Valores e Entrega</h2>
+                <div class="os-campo-grid">
+                    <p><strong>Valor Total do Pedido:</strong> <span id="osValorTotal"></span></p>
+                    <p><strong>Valor do Sinal/Adiantamento:</strong> <span id="osValorSinal"></span></p>
+                    
+                </div>
+                <div class="info-row highlight-value">
+                    <span class="info-label">Valor Restante a Pagar:</span>
+                    <span class="info-value" id="osValorRestante">R$ 0,00</span> 
+                </div>
+            </section>
+        </div>
+    </main>
+
+                <div id="os-actions" class="os-actions">
+                    <button id="btnImprimirOS" onclick="window.print()">Imprimir OS</button>
+                    <button type="button" id="btnEditarPedido" class="btn-editar">Editar Pedido</button>
+                    <a href="index.html" class="btn-voltar">Voltar para Dashboard</a>
+                </div>
     <script src="js/main.js"></script>
 </body>
 </html>

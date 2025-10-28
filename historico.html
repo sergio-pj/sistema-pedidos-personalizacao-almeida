@@ -1,34 +1,35 @@
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <title>Histórico de Clientes</title>
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="icon" type="image/png" href="logo.png">
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Histórico de Clientes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+</head>
+<body>
 
-        <header>
-            <img src="logo.png" alt="Logo Personalizações Almeida" class="logo">
-            <nav>
-                <a href="index.html">Dashboard (Pedidos)</a>
-                <a href="novo-pedido.html">Novo Pedido</a>
-                <a href="historico.html">Histórico de Clientes</a>
-            </nav>
-        </header>
-        <h1>Histórico de Pedidos por Cliente</h1>
+    <header>
+        <img src="logo.png" alt="Logo Personalizações Almeida" class="logo">
+        <nav>
+            <a href="index.html">Dashboard (Pedidos)</a>
+            <a href="novo-pedido.html">Novo Pedido</a>
+            <a href="historico.html">Histórico de Clientes</a>
+        </nav>
+    </header>
+    <h1>Histórico de Pedidos por Cliente</h1>
 
     <div id="filtrosBusca">
         <div id="relatorioCliente">
         </div>
-
-        <table id="tabelaHistorico">
-        </table>
-        <label for="inputBuscaCliente">Buscar Cliente:</label>
-        <input type="text" id="inputBuscaCliente" placeholder="Digite o nome do cliente" onkeyup="buscarHistorico()">
-    </div>
-
-    <table id="tabelaHistorico">
+        
+        <div class="busca-input-container">
+            <label for="inputBuscaCliente" class="label-busca">Buscar Cliente:</label>
+            <input type="text" id="inputBuscaCliente" placeholder="Digite o nome do cliente" title="Buscar por Nome do Cliente">
+            </div>
+        
+        </div>
+    
+    <table id="tabelaHistorico" class="tabela-historico-principal">
         <thead>
             <tr>
                 <th>Status</th>
@@ -40,10 +41,10 @@
             </tr>
         </thead>
         <tbody>
-        </tbody>
+            </tbody>
     </table>
 
-        <script src="js/main.js"></script>
-        <a href="novo-pedido.html" class="fab-button" title="Novo Pedido">+</a> 
-    </body>
-    </html>
+    <script src="js/main.js"></script>
+    <a href="novo-pedido.html" class="fab-button" title="Novo Pedido">+</a> 
+</body>
+</html>
