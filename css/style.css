@@ -314,3 +314,60 @@ h1 {
     border-color: #ffc107; /* Amarelo de destaque ao focar */
     outline: none;
 }
+
+/* ESTILOS PARA O NOVO RELATÓRIO POR CLIENTE (historico.html) */
+.relatorio-card {
+    background-color: white; 
+    padding: 25px 30px;
+    margin: 0 30px 20px 30px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.relatorio-card h2 {
+    color: #2A4365;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ffc107; /* Amarelo de destaque */
+    font-size: 1.4em;
+}
+
+.resumo-grid {
+    display: flex;
+    flex-wrap: wrap; /* Permite que os itens quebrem linha se for preciso */
+    gap: 20px; /* Espaço entre os cartões de mês */
+    margin-top: 15px;
+}
+
+.mes-item {
+    background-color: #f8f9fa; /* Fundo levemente cinza para o cartão do mês */
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    min-width: 250px;
+    flex: 1; /* Permite que o cartão cresça/diminua */
+}
+
+.mes-item h3 {
+    margin-top: 0;
+    color: #343a40;
+    font-size: 1.1em;
+}
+
+.mes-item p {
+    margin: 5px 0;
+    font-size: 0.95em;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.mes-item span {
+    color: #2A4365; /* Azul marinho para números */
+    font-size: 1.1em;
+}
+
+.mes-item .valor-relatorio {
+    color: #28a745; /* Verde para faturamento */
+    font-size: 1.2em;
+}

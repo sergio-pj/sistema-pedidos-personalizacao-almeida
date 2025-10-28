@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Ordem de Serviço (OS)</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/os.css"> 
+    <link rel="icon" type="image/png" href="logo.png">
+</head>
+<body>
+
+    <header class="only-print os-print-header">
+        <img src="logo.png" alt="Personalizações Almeida's Logo" class="os-logo">
+        <h1>Personalizações Almeida's</h1>
+    </header>
+    
+    <div id="os-container">
+        <h1>Carregando Ordem de Serviço...</h1>
+    </div>
+
+    <div id="os-actions">
+        <button id="btnImprimirOS" onclick="window.print()">Imprimir OS</button>
+        <button id="btnEditarPedido" class="btn-editar">Editar Pedido</button>
+        <a href="index.html" class="btn-voltar">Voltar para Dashboard</a>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

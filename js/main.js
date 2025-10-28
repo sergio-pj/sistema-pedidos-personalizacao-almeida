@@ -9,8 +9,9 @@ function gerarId() {
 function calcularResumoFinanceiro(pedidos) {
     const faturamentoTotalElement = document.getElementById('faturamentoTotal');
     const valorFaturadoElement = document.getElementById('valorFaturado');
+    const totalPendentesElement = document.getElementById('contagemPendentes'); 
 
-    if (!faturamentoTotalElement || !valorFaturadoElement) {
+    if (!faturamentoTotalElement || !valorFaturadoElement || !totalPendentesElement) {
         return;
     }
     
@@ -18,9 +19,11 @@ function calcularResumoFinanceiro(pedidos) {
     const totalGeral = pedidos.reduce((acc, pedido) => acc + pedido.valorTotal, 0);
 
     // 2. Cálculo do Valor Faturado (Apenas pedidos 'Entregue')
-    const totalFaturado = pedidos
-        .filter(p => p.status === 'Entregue')
-        .reduce((acc, pedido) => acc + pedido.valorTotal, 0);
+    const pedidosEntregues = pedidos.filter(p => p.status === 'Entregue');
+    const totalFaturado = pedidosEntregues.reduce((acc, pedido) => acc + pedido.valorTotal, 0);
+    
+    // 3. Contagem de Pedidos Pendentes
+    const pedidosPendentes = pedidos.filter(p => p.status !== 'Entregue');
 
     // Formatação em Real (BRL)
     const formatter = new Intl.NumberFormat('pt-BR', {
@@ -31,54 +34,43 @@ function calcularResumoFinanceiro(pedidos) {
     // Exibe os resultados
     faturamentoTotalElement.textContent = formatter.format(totalGeral);
     valorFaturadoElement.textContent = formatter.format(totalFaturado);
+    totalPendentesElement.textContent = pedidosPendentes.length; // Exibe a contagem
 }
 
 
-// Função para buscar e exibir o histórico de pedidos de um cliente (CORRIGIDA E SOFISTICADA)
-function buscarHistorico() {
-    // Usamos ?.value para garantir que só tentamos acessar o valor se o elemento existir
-    const nomeBusca = document.getElementById('inputBuscaCliente')?.value.trim().toLowerCase() || "";
-    const tabelaBody = document.querySelector('#tabelaHistorico tbody');
-    
+// --- FUNÇÃO PARA O DASHBOARD (index.html) ---
+function carregarPedidos() {
+    const tabelaBody = document.querySelector('#tabelaPedidos tbody');
+
     if (!tabelaBody) {
         return; 
     }
 
     const pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
     tabelaBody.innerHTML = ''; 
+    
+    // CHAVE AQUI: Filtra apenas os pedidos que AINDA NÃO FORAM ENTREGUES
+    const pedidosPendentes = pedidos.filter(pedido => pedido.status !== 'Entregue');
 
-    // Filtra os pedidos: Se nomeBusca for vazio, lista todos.
-    const pedidosFiltrados = pedidos.filter(pedido => 
-        nomeBusca === "" || pedido.nomeCliente.toLowerCase().includes(nomeBusca)
-    );
+    // ORDENAR: Os mais atrasados ou próximos da data de entrega primeiro
+    pedidosPendentes.sort((a, b) => new Date(a.dataEntrega) - new Date(b.dataEntrega));
 
-    // Ordenar por data de entrega (apenas para manter organizado)
-    pedidosFiltrados.sort((a, b) => new Date(a.dataEntrega) - new Date(b.dataEntrega));
+    // ATUALIZA O RESUMO FINANCEIRO
+    calcularResumoFinanceiro(pedidos);
 
-    // Colspan corrigido para 6 colunas, conforme o HTML ajustado
-    if (pedidosFiltrados.length === 0) {
-        if (pedidos.length === 0) {
-             tabelaBody.innerHTML = '<tr><td colspan="6">Nenhum pedido cadastrado no sistema.</td></tr>';
-        } else {
-             tabelaBody.innerHTML = '<tr><td colspan="6">Nenhum pedido encontrado para o cliente pesquisado.</td></tr>';
-        }
+    if (pedidosPendentes.length === 0) {
+        tabelaBody.innerHTML = '<tr><td colspan="6">Todos os pedidos foram entregues.</td></tr>';
         return;
     }
 
-    // Exibe os pedidos encontrados
-    pedidosFiltrados.forEach(pedido => {
+    // Exibe os pedidos
+    pedidosPendentes.forEach(pedido => {
         const linha = tabelaBody.insertRow();
         
-        // 1. Célula Status
         linha.insertCell().textContent = pedido.status; 
-        
-        // 2. Célula Data de Entrega
         linha.insertCell().textContent = pedido.dataEntrega; 
-        
-        // 3. Célula Cliente
         linha.insertCell().textContent = pedido.nomeCliente;
 
-        // 4. CÉLULA SERVIÇO/CONTATO COM LINK WHATSAPP
         const servicoCell = linha.insertCell();
         servicoCell.innerHTML = `
             ${pedido.descricaoServico}<br>
@@ -87,14 +79,111 @@ function buscarHistorico() {
             </a>
         `;
 
-        // 5. Célula Valor
         linha.insertCell().textContent = `R$ ${parseFloat(pedido.valorTotal).toFixed(2)}`;
         
-        // 6. CÉLULA DE AÇÕES (Para manter o alinhamento de 6 colunas)
+        // CÉLULA DE AÇÕES: Mudança para "Ver OS"
         const acoesCell = linha.insertCell();
-        // Não precisamos de botões no histórico, mas podemos adicionar um botão 'Ver'
-        acoesCell.textContent = 'Ver histórico'; 
+        acoesCell.innerHTML = `
+            <button class="btn-editar" data-pedido-id="${pedido.id}" onclick="window.location.href='os.html?id=${pedido.id}'">Ver OS</button>
+            <button class="btn-acao" data-pedido-id="${pedido.id}" onclick="marcarComoEntregue(event)">Concluir</button>
+        `;
         
+        // Aplicação de Estilos para Pedidos Atrasados
+        if (new Date(pedido.dataEntrega) < new Date()) {
+            linha.classList.add('pedido-atrasado');
+        }
+    });
+}
+
+
+// --- FUNÇÃO PARA O HISTÓRICO DE CLIENTES (historico.html) ---
+
+// --- FUNÇÃO PARA O HISTÓRICO DE CLIENTES (historico.html) ---
+
+function buscarHistorico() {
+    const inputBusca = document.getElementById('inputBuscaCliente');
+    
+    // LINHA CORRIGIDA: usa 'inputBusca?' em vez de 'inputBusBusca?'
+    const nomeBusca = inputBusca?.value.trim().toLowerCase() || ""; 
+
+    const tabelaBody = document.querySelector('#tabelaHistorico tbody');
+    const relatorioContainer = document.getElementById('relatorioCliente'); 
+    
+    if (!tabelaBody) {
+        return; 
+    }
+
+    const pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+    tabelaBody.innerHTML = ''; 
+    
+    // O relatorioContainer existe, vamos limpar ele.
+    if (relatorioContainer) {
+        relatorioContainer.innerHTML = ''; // Limpa o relatório a cada nova busca
+    }
+
+
+    // Filtra os pedidos: A busca só ocorre se houver um nome, senão lista TODOS (incluindo entregues).
+    const pedidosFiltrados = pedidos.filter(pedido => 
+        nomeBusca === "" || pedido.nomeCliente.toLowerCase().includes(nomeBusca)
+    );
+
+    // Ordenar por data de entrega (do mais novo para o mais antigo no histórico)
+    pedidosFiltrados.sort((a, b) => new Date(b.dataEntrega) - new Date(a.dataEntrega));
+
+    // --- LÓGICA DO RELATÓRIO MENSAL (SÓ RODA SE HOUVER BUSCA) ---
+    if (nomeBusca !== "" && pedidosFiltrados.length > 0 && relatorioContainer) {
+        const relatorio = calcularRelatorioMensal(pedidosFiltrados, nomeBusca);
+        relatorioContainer.innerHTML = relatorio;
+    }
+    // --- FIM LÓGICA DO RELATÓRIO ---
+    
+    // Colspan corrigido para 6 colunas, conforme o HTML ajustado
+    if (pedidosFiltrados.length === 0) {
+        if (pedidos.length === 0) {
+            tabelaBody.innerHTML = '<tr><td colspan="6">Nenhum pedido cadastrado no sistema.</td></tr>';
+        } else {
+            tabelaBody.innerHTML = '<tr><td colspan="6">Nenhum pedido encontrado para o cliente pesquisado.</td></tr>';
+        }
+        return;
+    }
+
+    // Exibe os pedidos encontrados na tabela (Resto da lógica da função anterior)
+    pedidosFiltrados.forEach(pedido => {
+        const linha = tabelaBody.insertRow();
+        
+        linha.insertCell().textContent = pedido.status; 
+        linha.insertCell().textContent = pedido.dataEntrega; 
+        linha.insertCell().textContent = pedido.nomeCliente;
+
+        const servicoCell = linha.insertCell();
+        servicoCell.innerHTML = `
+            ${pedido.descricaoServico}<br>
+            <a href="https://wa.me/55${pedido.contato.replace(/\D/g, '')}" target="_blank" class="link-whatsapp">
+                (Contato: ${pedido.contato})
+            </a>
+        `;
+
+        linha.insertCell().textContent = `R$ ${parseFloat(pedido.valorTotal).toFixed(2)}`;
+        
+        // CÉLULA DE AÇÕES: BOTOES DE EXCLUIR E MARCAR COMO CONCLUÍDO / REABRIR
+        const acoesCell = linha.insertCell();
+        
+        // SE o pedido estiver 'Entregue', mostra o botão REABRIR.
+        if (pedido.status === 'Entregue') {
+            acoesCell.innerHTML = `
+                <button class="btn-editar" data-pedido-id="${pedido.id}" onclick="window.location.href='os.html?id=${pedido.id}'">Ver OS</button>
+                <button class="btn-acao btn-reabrir" data-pedido-id="${pedido.id}" onclick="reabrirPedido(event)">Reabrir</button>
+                <button class="btn-excluir" data-pedido-id="${pedido.id}" onclick="excluirPedido(event)">Excluir</button>
+            `;
+        } else {
+            // Se NÃO estiver entregue, mostra o botão Concluir (como antes).
+            acoesCell.innerHTML = `
+                <button class="btn-editar" data-pedido-id="${pedido.id}" onclick="window.location.href='os.html?id=${pedido.id}'">Ver OS</button>
+                <button class="btn-acao" data-pedido-id="${pedido.id}" onclick="marcarComoEntregue(event)">Concluir</button>
+                <button class="btn-excluir" data-pedido-id="${pedido.id}" onclick="excluirPedido(event)">Excluir</button>
+            `;
+        }
+
         // APLICAÇÃO DAS CLASSES DE DESTAQUE PARA SOFISTICAÇÃO VISUAL
         if (pedido.status === 'Entregue') {
             linha.classList.add('pedido-entregue');
@@ -104,137 +193,60 @@ function buscarHistorico() {
     });
 }
 
-// Função para carregar e exibir os pedidos na tabela (para index.html)
-function carregarPedidos() {
-    const tabelaBody = document.querySelector('#tabelaPedidos tbody');
 
-    if (!tabelaBody) {
-        return; // Sai da função se não estiver no index.html
-    }
-
-    let pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
-    tabelaBody.innerHTML = ''; 
-
-    // CHAMA A FUNÇÃO DE RESUMO FINANCEIRO
-    calcularResumoFinanceiro(pedidos);
-    
-    // --- Lógica de Contagem ---
-    const contagemPendentes = pedidos.filter(p => p.status === "A Fazer").length;
-    const elementoContagem = document.getElementById('contagemPendentes');
-    if (elementoContagem) {
-        elementoContagem.textContent = contagemPendentes;
-    }
-    // --- FIM Lógica de Contagem ---
-
-    // --- Lógica de Filtros ---
-    const filtroStatus = document.getElementById('filtroStatus');
-    const filtroBusca = document.getElementById('filtroBusca');
-    const filtroDataEntrega = document.getElementById('filtroDataEntrega');
-    
-    let pedidosFiltrados = pedidos;
-
-    // Função auxiliar para obter a data de hoje formatada (AAAA-MM-DD)
-    const getTodayDate = () => {
-        const today = new Date();
-        const year = today.getFullYear();
-        // O mês é base 0, então adicionamos 1
-        const month = String(today.getMonth() + 1).padStart(2, '0'); 
-        const day = String(today.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-
-    // 1. Filtrar por Status
-    if (filtroStatus && filtroStatus.value !== 'todos') {
-        pedidosFiltrados = pedidosFiltrados.filter(pedido => 
-            pedido.status === filtroStatus.value
-        );
-    }
-    
-    // 2. Filtrar por Data de Entrega
-    if (filtroDataEntrega && filtroDataEntrega.value === 'hoje') {
-        const hoje = getTodayDate();
-        pedidosFiltrados = pedidosFiltrados.filter(pedido => 
-            pedido.dataEntrega === hoje
-        );
-    }
-
-    // 3. Filtrar por Busca (Cliente/Serviço)
-    if (filtroBusca && filtroBusca.value.trim() !== '') {
-        const termo = filtroBusca.value.trim().toLowerCase();
-        pedidosFiltrados = pedidosFiltrados.filter(pedido => 
-            pedido.nomeCliente.toLowerCase().includes(termo) ||
-            pedido.descricaoServico.toLowerCase().includes(termo)
-        );
-    }
-    // --- FIM Lógica de Filtros ---
-
-    // Ordena os pedidos pela data de entrega (os mais urgentes primeiro)
-    pedidosFiltrados.sort((a, b) => new Date(a.dataEntrega) - new Date(b.dataEntrega));
-    
-    // Se não houver pedidos após a filtragem
-    if (pedidosFiltrados.length === 0) {
-        tabelaBody.innerHTML = '<tr><td colspan="6">Nenhum pedido encontrado com os filtros aplicados.</td></tr>';
-        return;
-    }
-
-    // --- Exibir os dados na tabela ---
-    pedidosFiltrados.forEach(pedido => {
-        const linha = tabelaBody.insertRow();
+// --- NOVA FUNÇÃO: CALCULA O RELATÓRIO MENSAL ---
+function calcularRelatorioMensal(pedidosDoCliente, nomeCliente) {
+    // 1. Agrupa os pedidos por Mês/Ano
+    const resumoPorMes = pedidosDoCliente.reduce((acc, pedido) => {
+        const data = new Date(pedido.dataEntrega + 'T00:00:00'); 
         
-        // Células da Tabela
-        linha.insertCell().textContent = pedido.status; 
-        linha.insertCell().textContent = pedido.dataEntrega; 
-        linha.insertCell().textContent = pedido.nomeCliente;
-
-        // CÉLULA SERVIÇO/CONTATO COM LINK WHATSAPP
-        const servicoCell = linha.insertCell();
-        servicoCell.innerHTML = `
-            ${pedido.descricaoServico}<br>
-            <a href="https://wa.me/55${pedido.contato.replace(/\D/g, '')}" target="_blank" class="link-whatsapp">
-                (Contato: ${pedido.contato})
-            </a>
-        `;
-
-        linha.insertCell().textContent = `R$ ${parseFloat(pedido.valorTotal).toFixed(2)}`;
+        const mesAno = `${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;
         
-        // Célula Ações
-        const acoesCell = linha.insertCell();
-        
-        // Se o pedido NÃO foi entregue, ele recebe os botões Entregue e Editar
-        if (pedido.status !== 'Entregue') {
-            const btnEntregue = document.createElement('button');
-            btnEntregue.textContent = 'Entregue';
-            btnEntregue.dataset.pedidoId = pedido.id; 
-            btnEntregue.addEventListener('click', marcarComoEntregue);
-            acoesCell.appendChild(btnEntregue);
-
-            const btnEditar = document.createElement('button');
-            btnEditar.textContent = 'Editar';
-            btnEditar.className = 'btn-editar';
-            btnEditar.addEventListener('click', () => {
-                window.location.href = `novo-pedido.html?id=${pedido.id}`;
-            });
-            acoesCell.appendChild(btnEditar);
-        } else {
-            // Se o pedido FOI entregue, ele recebe o texto 'Concluído'
-            acoesCell.textContent = 'Concluído';
+        if (!acc[mesAno]) {
+            acc[mesAno] = {
+                totalPedidos: 0,
+                faturamentoTotal: 0
+            };
         }
         
-        // ADICIONAMOS A LÓGICA DO BOTÃO EXCLUIR PARA TODOS (Entregues ou Não)
-        const btnExcluir = document.createElement('button');
-        btnExcluir.textContent = 'Excluir';
-        btnExcluir.className = 'btn-excluir';
-        btnExcluir.dataset.pedidoId = pedido.id;
-        btnExcluir.addEventListener('click', excluirPedido);
-        acoesCell.appendChild(btnExcluir);
+        acc[mesAno].totalPedidos += 1;
+        acc[mesAno].faturamentoTotal += pedido.valorTotal;
         
-        // Opcional: Adicionar classe para destaque visual (via CSS)
-        if (pedido.status === 'Entregue') {
-            linha.classList.add('pedido-entregue');
-        } else if (new Date(pedido.dataEntrega) < new Date() && pedido.status !== 'Entregue') {
-            linha.classList.add('pedido-atrasado');
-        }
-    });
+        return acc;
+    }, {});
+    
+    // 2. Formata e monta o HTML
+    let htmlRelatorio = `
+        <div class="relatorio-card">
+            <h2>Relatório Mensal de Pedidos para: ${nomeCliente.toUpperCase()}</h2>
+            <div class="resumo-grid">
+    `;
+
+    const meses = Object.keys(resumoPorMes).sort().reverse(); 
+    
+    if (meses.length === 0) {
+        htmlRelatorio += '<p>Nenhum pedido encontrado para este cliente.</p>';
+    } else {
+        meses.forEach(mesAno => {
+            const dados = resumoPorMes[mesAno];
+            const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(dados.faturamentoTotal);
+            
+            htmlRelatorio += `
+                <div class="mes-item">
+                    <h3>Mês/Ano: ${mesAno}</h3>
+                    <p>Total de Pedidos: <span>${dados.totalPedidos}</span></p>
+                    <p>Faturamento: <span class="valor-relatorio">${valorFormatado}</span></p>
+                </div>
+            `;
+        });
+    }
+
+    htmlRelatorio += `
+            </div>
+        </div>
+    `;
+    
+    return htmlRelatorio;
 }
 
 // Função para alterar o status de um pedido para "Entregue"
@@ -251,10 +263,32 @@ function marcarComoEntregue(event) {
         
         // Chama a função correta dependendo da página
         if (document.querySelector('#tabelaPedidos')) {
-             carregarPedidos();
+            carregarPedidos();
         } else if (document.querySelector('#tabelaHistorico')) {
-             buscarHistorico();
+            buscarHistorico(); 
         }
+    } else {
+        alert("Erro: Pedido não encontrado.");
+    }
+}
+
+
+// --- NOVA FUNÇÃO: REABRIR PEDIDO ---
+function reabrirPedido(event) {
+    const pedidoId = parseInt(event.target.dataset.pedidoId); 
+    
+    let pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+    
+    const pedidoIndex = pedidos.findIndex(p => p.id === pedidoId);
+    
+    if (pedidoIndex !== -1) {
+        pedidos[pedidoIndex].status = "A Fazer";
+        localStorage.setItem('pedidos_loja', JSON.stringify(pedidos));
+        
+        // Recarrega o histórico para atualizar a lista
+        alert("Pedido reaberto com sucesso. Ele voltou para o Dashboard.");
+        buscarHistorico(); 
+        
     } else {
         alert("Erro: Pedido não encontrado.");
     }
@@ -274,9 +308,9 @@ function excluirPedido(event) {
         localStorage.setItem('pedidos_loja', JSON.stringify(novosPedidos));
         // Chama a função correta dependendo da página
         if (document.querySelector('#tabelaPedidos')) {
-             carregarPedidos();
+            carregarPedidos();
         } else if (document.querySelector('#tabelaHistorico')) {
-             buscarHistorico();
+            buscarHistorico(); 
         }
     }
 }
@@ -303,12 +337,16 @@ function carregarDadosParaEdicao() {
 
     if (pedidoParaEditar) {
         // Preenche o formulário com os dados existentes
-        document.getElementById('inputNomeCliente').value = pedidoParaEditar.nomeCliente;
-        document.getElementById('inputContato').value = pedidoParaEditar.contato;
-        document.getElementById('inputDescricao').value = pedidoParaEditar.descricaoServico;
-        document.getElementById('inputValorTotal').value = pedidoParaEditar.valorTotal;
-        document.getElementById('inputFormaPagamento').value = pedidoParaEditar.formaPagamento;
-        document.getElementById('inputDataEntrega').value = pedidoParaEditar.dataEntrega;
+        document.getElementById('inputNomeCliente').value = pedidoParaEditar.nomeCliente || '';
+        document.getElementById('inputContato').value = pedidoParaEditar.contato || '';
+        document.getElementById('inputDescricao').value = pedidoParaEditar.descricaoServico || '';
+        
+        // PREENCHIMENTO DO NOVO CAMPO DE DETALHES DE TAMANHO
+        document.getElementById('inputDetalhesTamanho').value = pedidoParaEditar.detalhesTamanho || ''; 
+        
+        document.getElementById('inputValorTotal').value = pedidoParaEditar.valorTotal || 0;
+        document.getElementById('inputFormaPagamento').value = pedidoParaEditar.formaPagamento || '';
+        document.getElementById('inputDataEntrega').value = pedidoParaEditar.dataEntrega || '';
         
         // Adiciona um campo oculto para guardar o ID
         const idInput = document.createElement('input');
@@ -334,7 +372,6 @@ if (form) {
     form.addEventListener('submit', function(event) {
         event.preventDefault(); 
         
-        // Verifica se há um campo oculto com ID (sinal de que estamos editando)
         const idInput = document.getElementById('pedidoId');
         
         // Coleta os dados do formulário
@@ -342,9 +379,10 @@ if (form) {
             nomeCliente: document.getElementById('inputNomeCliente').value,
             contato: document.getElementById('inputContato').value,
             descricaoServico: document.getElementById('inputDescricao').value,
+            detalhesTamanho: document.getElementById('inputDetalhesTamanho').value, // CAMPO INCLUÍDO
             valorTotal: parseFloat(document.getElementById('inputValorTotal').value) || 0,
             formaPagamento: document.getElementById('inputFormaPagamento').value,
-            dataEntrega: document.getElementById('inputDataEntrega').value
+            dataEntrega: document.getElementById('inputDataEntrega').value,
         };
 
         let pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
@@ -381,11 +419,98 @@ if (form) {
 }
 
 
+// --- Lógica para a página de Ordem de Serviço (os.html) ---
+
+function carregarOrdemDeServico() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pedidoId = urlParams.get('id');
+    const osContainer = document.getElementById('os-container');
+    
+    // Busca o botão de edição que está no seu HTML fixo
+    const btnEditar = document.getElementById('btnEditarPedido'); 
+    
+    if (!pedidoId || !osContainer) return;
+
+    const pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+    const pedido = pedidos.find(p => p.id === parseInt(pedidoId));
+
+    if (pedido) {
+        // Formata o valor
+        const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(pedido.valorTotal);
+        const dataPedido = new Date(pedido.id).toLocaleDateString('pt-BR'); // Data de criação (baseada no ID/timestamp)
+
+        // 1. INJETA O CONTEÚDO (REMOVENDO OS BOTÕES DUPLICADOS DO FINAL)
+        osContainer.innerHTML = `
+            <div class="os-header">
+                <h2>ORDEM DE SERVIÇO N° ${pedido.id}</h2>
+                <p>Data de Emissão: <strong>${dataPedido}</strong></p>
+            </div>
+
+            <div class="os-cliente">
+                <h3>Dados do Cliente</h3>
+                <p>Nome: <strong>${pedido.nomeCliente}</strong></p>
+                <p>Contato: <strong>${pedido.contato}</strong></p>
+                <p>Status: <span class="os-status os-status-${pedido.status.replace(/\s/g, '').toLowerCase()}">
+                    ${pedido.status}
+                </span></p>
+            </div>
+            
+            <div class="os-producao">
+                <h3>Detalhes do Serviço/Produção</h3>
+                
+                <div class="campo-os">
+                    <h4>Descrição do Serviço:</h4>
+                    <p class="detalhe-grande">${pedido.descricaoServico}</p>
+                </div>
+                
+                <div class="campo-os">
+                    <h4>Detalhes de Tamanho / Quantidade (Produção):</h4>
+                    <p class="detalheTamanho">${pedido.detalhesTamanho || 'N/A'}</p>
+                </div>
+                
+                <div class="os-info-grid">
+                    <div>
+                        <h4>Data de Entrega:</h4>
+                        <p>${pedido.dataEntrega}</p>
+                    </div>
+                    <div>
+                        <h4>Forma de Pagamento:</h4>
+                        <p>${pedido.formaPagamento}</p>
+                    </div>
+                    <div>
+                        <h4>Valor Total:</h4>
+                        <p class="valor-total-os">${valorFormatado}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="os-notas">
+                <h4>Anotações de Produção/Qualidade:</h4>
+                <div class="espaco-notas"></div>
+            </div>
+        `;
+        
+        // 2. ATUALIZA O BOTÃO DE EDIÇÃO (que agora está fixo no HTML)
+        if (btnEditar) {
+             // Define o destino do botão de edição com o ID correto
+             btnEditar.onclick = function() {
+                 window.location.href = `novo-pedido.html?id=${pedido.id}`;
+             };
+        }
+        
+    } else {
+        osContainer.innerHTML = `<p>Ordem de Serviço não encontrada.</p>`;
+    }
+}
+
+
 // --- Chamada da Função de Carregamento ---
 
 // Lógica robusta para carregar a função correta em cada página
-if (document.querySelector('#tabelaPedidos')) {
+if (document.querySelector('#tabelaPedidos')) { // Para index.html
     carregarPedidos();
-} else if (document.querySelector('#tabelaHistorico')) {
-    buscarHistorico(); // Garante que a lista completa carregue na página de Histórico
+} else if (document.querySelector('#tabelaHistorico')) { // Para historico.html
+    buscarHistorico(); 
+} else if (document.getElementById('os-container')) { // Para os.html
+    carregarOrdemDeServico();
 }
