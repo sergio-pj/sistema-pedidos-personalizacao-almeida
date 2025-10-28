@@ -190,12 +190,23 @@ button:hover {
 #formNovoPedido {
     /* Centraliza e limita a largura do formulário na tela */
     width: calc(100% - 60px); 
-    max-width: 900px; /* Limite máximo para não ficar muito largo */
-    margin: 20px 30px;
+    max-width: 600px; /* Reduz a largura máxima para parecer um "card" */
+    
+    /* AS TRÊS LINHAS MAIS IMPORTANTES PARA CENTRALIZAR O CARD */
+    margin: 50px auto 20px auto; /* 50px de margem superior, 'auto' centraliza lateralmente */
+    /* FIM DAS TRÊS LINHAS */
+    
     padding: 30px;
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Aumenta a sombra para destaque */
+}
+
+/* O título 'Novo Pedido' também precisa de ajuste */
+h1 {
+    padding: 20px 30px 0 30px; /* Remove margem inferior para o formulário vir logo abaixo */
+    color: white; /* Muda a cor para branco para contrastar com o fundo azul */
+    text-align: center; /* Centraliza o título */
 }
 
 /* Define a linha de campos lado a lado */
@@ -216,12 +227,13 @@ button:hover {
 .form-group input,
 .form-group select,
 .form-group textarea {
-    width: 100%;
+    width: 100%; /* Garante que o campo preencha o espaço do form-group */
     padding: 10px;
-    margin-top: 5px; /* Espaçamento entre o label e o campo */
-    border: 1px solid #ced4da; /* Borda suave */
+    margin-top: 5px; 
+    border: 1px solid #ced4da; 
     border-radius: 4px;
-    box-sizing: border-box; /* Garante que padding e borda não aumentem o tamanho total */
+    box-sizing: border-box;
+    transition: border-color 0.2s; /* Transição suave ao focar */
 }
 
 /* Ajuste para a Descrição do Serviço (textarea) */
