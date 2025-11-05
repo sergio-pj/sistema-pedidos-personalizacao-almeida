@@ -74,10 +74,12 @@
         </div>
     </div>
 
-    <!-- carrega utilitários principais (syncPendingPedidos, helpers) -->
     <script src="js/main.js"></script>
 
     <script>
+        // *** URL BASE DO SEU SERVIDOR NO VERCEL ***
+        const VERCEL_URL = 'https://sistema-pedidos-personalizacao-alme.vercel.app';
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -86,7 +88,8 @@
             const errorMessage = document.getElementById('errorMessage');
 
             try {
-                const response = await fetch('http://localhost:3000/api/admin/login', {
+                // CORREÇÃO 1/2: Ajuste no endpoint de Login
+                const response = await fetch(`${VERCEL_URL}/api/admin/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -107,7 +110,10 @@
                         } else {
                             // fallback: se não existe a função, mantém o comportamento anterior simples
                             const pedidosKey = 'pedidos_loja_' + data.admin._id;
-                            const respList = await fetch('http://localhost:3000/api/pedidos', { headers: { 'Authorization': 'Bearer ' + data.token } });
+                            
+                            // CORREÇÃO 2/2: Ajuste no endpoint da lista de Pedidos (fallback)
+                            const respList = await fetch(`${VERCEL_URL}/api/pedidos`, { headers: { 'Authorization': 'Bearer ' + data.token } });
+                            
                             if (respList.ok) {
                                 const serverList = await respList.json();
                                 localStorage.setItem(pedidosKey, JSON.stringify(serverList));
@@ -120,8 +126,8 @@
                     // Redireciona para a página principal
                     window.location.href = 'index.html';
 
-                    // Redireciona para a página principal
-                    window.location.href = 'index.html';
+                    // Redireciona para a página principal (Linha duplicada, mantive uma)
+                    // window.location.href = 'index.html'; 
                 } else {
                     const error = await response.json();
                     errorMessage.textContent = error.message || 'E-mail ou senha inválidos';
