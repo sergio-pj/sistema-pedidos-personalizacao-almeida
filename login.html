@@ -77,7 +77,7 @@
     <script src="js/main.js"></script>
 
     <script>
-const BACKEND_URL = 'https://sistema-pedidos-personalizacao-almeida.up.railway.app';
+const BACKEND_URL = 'https://sistema-pedidos-personalizacao-alme-six.vercel.app';
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -98,7 +98,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            mode: 'cors',
             body: JSON.stringify({ email, senha })
         });
 
@@ -115,8 +114,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
                     const respList = await fetch(`${BACKEND_URL}/api/pedidos`, {
                         headers: {
                             'Authorization': 'Bearer ' + data.token
-                        },
-                        mode: 'cors'
+                        }
                     });
 
                     if (respList.ok) {
@@ -146,6 +144,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 });
 </script>
+
 
 </body>
 </html>
