@@ -33,12 +33,22 @@ function calcularResumoFinanceiro(pedidos) {
 
 
 // --- FUNÇÃO PARA O DASHBOARD (index.html) ---
-function carregarPedidos() {
+async function carregarPedidos() {
     const tabelaBody = document.querySelector('#tabelaPedidos tbody');
 
     if (!tabelaBody) return; 
-
-    const pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+    // Tenta buscar do servidor primeiro, com fallback para localStorage
+    let pedidos = [];
+    try {
+        const resp = await fetch('http://localhost:3000/api/pedidos');
+        if (resp.ok) {
+            pedidos = await resp.json();
+        } else {
+            pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+        }
+    } catch (err) {
+        pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+    }
     tabelaBody.innerHTML = ''; 
     
     // 1. Mostra apenas pedidos NÃO Entregues no Dashboard
@@ -98,7 +108,7 @@ function carregarPedidos() {
 
 
 // --- FUNÇÃO PARA O HISTÓRICO DE CLIENTES (historico.html) ---
-function buscarHistorico() {
+async function buscarHistorico() {
     // Pega o valor de busca, corrigido para verificar a existência do elemento
     const inputBusca = document.getElementById('inputBuscaCliente'); 
     const nomeBusca = inputBusca?.value.trim().toLowerCase() || ""; 
@@ -106,7 +116,14 @@ function buscarHistorico() {
 
     if (!tabelaBody) return; 
 
-    const pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+    let pedidos = [];
+    try {
+        const resp = await fetch('http://localhost:3000/api/pedidos');
+        if (resp.ok) pedidos = await resp.json();
+        else pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+    } catch (err) {
+        pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+    }
     tabelaBody.innerHTML = ''; 
     
     // Filtra pelo nome do cliente
@@ -166,6 +183,48 @@ function buscarHistorico() {
         } else if (new Date(pedido.dataEntrega) < new Date() && pedido.status !== 'Entregue') {
             linha.classList.add('pedido-atrasado');
         }
+    });
+}
+
+// --- FUNÇÃO PARA CARREGAR CLIENTES (clientes.html) ---
+async function carregarClientes() {
+    const tabelaBody = document.querySelector('#tabelaClientes tbody');
+    if (!tabelaBody) return;
+
+    let clientes = [];
+    try {
+        const resp = await fetch('http://localhost:3000/api/clientes');
+        if (resp.ok) {
+            clientes = await resp.json();
+        } else {
+            // fallback: extrair clientes dos pedidos locais
+            const pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+            const map = {};
+            pedidos.forEach(p => { if (p.nomeCliente) map[p.nomeCliente] = { nomeCliente: p.nomeCliente, contato: p.contato || '', endereco: '' }; });
+            clientes = Object.values(map);
+        }
+    } catch (err) {
+        const pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+        const map = {};
+        pedidos.forEach(p => { if (p.nomeCliente) map[p.nomeCliente] = { nomeCliente: p.nomeCliente, contato: p.contato || '', endereco: '' }; });
+        clientes = Object.values(map);
+    }
+
+    tabelaBody.innerHTML = '';
+    if (clientes.length === 0) {
+        tabelaBody.innerHTML = '<tr><td colspan="4">Nenhum cliente cadastrado.</td></tr>';
+        return;
+    }
+
+    clientes.forEach(cliente => {
+        const linha = tabelaBody.insertRow();
+        linha.insertCell().textContent = cliente.nomeCliente || cliente.nome || '';
+        linha.insertCell().textContent = cliente.contato || '';
+        linha.insertCell().textContent = cliente.endereco || '';
+        const actions = linha.insertCell();
+        actions.innerHTML = `
+            <button onclick="window.location.href='historico.html'">Ver Pedidos</button>
+        `;
     });
 }
 
@@ -405,7 +464,7 @@ function carregarDadosParaEdicao() {
     }
 }
 
-function salvarPedido(event) {
+async function salvarPedido(event) {
     event.preventDefault();
 
     const idInput = document.getElementById('pedidoId'); 
@@ -428,38 +487,104 @@ function salvarPedido(event) {
         formaPagamento: document.getElementById('inputFormaPagamento').value,
         dataEntrega: document.getElementById('inputDataEntrega').value,
         itens: itensColetados, 
-        
         detalhesTamanho: document.getElementById('inputDetalhesTamanho')?.value.trim() || '', 
-        
         valorSinal: parseFloat(document.getElementById('inputValorSinal').value) || 0,
         // Usa o valor calculado da soma dos itens, garantindo a integridade dos dados
         valorTotal: valorTotalCalculado,
     };
 
     let pedidos = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
-    
-    // Lógica para EDIÇÃO
+
+    // Se há um idInput, tentaremos atualizar via API e localStorage
     if (idInput && idInput.value) {
-        const pedidoId = parseInt(idInput.value);
-        const pedidoIndex = pedidos.findIndex(p => p.id === pedidoId);
+        const pedidoId = idInput.value;
+
+        // Atualiza localmente para manter funcionamento offline
+        const pedidoIndex = pedidos.findIndex(p => p.id === parseInt(pedidoId));
         if (pedidoIndex !== -1) {
-            // Mantém o ID, o status e a data de criação originais, atualiza o resto
             pedidos[pedidoIndex] = { ...pedidos[pedidoIndex], ...dadosPedido };
-            alert("Pedido atualizado com sucesso!");
         }
-    } else { // Lógica para NOVO PEDIDO
-        const novoPedido = { 
-            id: gerarId(), 
-            status: "A Fazer", 
-            dataCriacao: Date.now(), // Adiciona a data de criação
-            ...dadosPedido 
-        };
-        pedidos.push(novoPedido);
-        alert('Novo pedido salvo com sucesso!');
+
+        // Tenta atualizar no backend (aceita legacyId ou _id)
+        try {
+            const resp = await fetch(`http://localhost:3000/api/pedidos/${pedidoId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosPedido)
+            });
+
+            if (resp.ok) {
+                const atualizado = await resp.json();
+                // opcional: sincronizar alguma informação retornada
+                console.log('Pedido atualizado no servidor:', atualizado);
+                localStorage.setItem('pedidos_loja', JSON.stringify(pedidos));
+                alert('Pedido atualizado com sucesso!');
+                window.location.href = 'index.html';
+                return;
+            } else {
+                console.warn('Falha ao atualizar no servidor, usando localStorage');
+            }
+        } catch (err) {
+            console.warn('Erro ao conectar com a API, salvando localmente:', err.message || err);
+        }
+
+        // Fallback: salva localmente
+        localStorage.setItem('pedidos_loja', JSON.stringify(pedidos));
+        alert('Pedido atualizado localmente (sem conexão com o servidor).');
+        window.location.href = 'index.html';
+        return;
     }
 
+    // NOVO PEDIDO: cria um ID local (legacy) e tenta enviar ao backend
+    const novoPedido = { 
+        id: gerarId(), 
+        status: "A Fazer", 
+        dataCriacao: Date.now(), // Adiciona a data de criação
+        ...dadosPedido 
+    };
+
+    // Atualiza localStorage imediatamente (funcionamento offline)
+    pedidos.push(novoPedido);
     localStorage.setItem('pedidos_loja', JSON.stringify(pedidos));
-    window.location.href = 'index.html';
+
+    // Tenta enviar ao backend (inclui legacyId para mapear dados locais)
+    try {
+        const resp = await fetch('http://localhost:3000/api/pedidos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ legacyId: novoPedido.id, ...dadosPedido, dataCriacao: novoPedido.dataCriacao })
+        });
+
+        if (resp.ok) {
+            const criado = await resp.json();
+            console.log('Pedido criado no servidor:', criado);
+            // Atualiza o localStorage para marcar o pedido com o serverId
+            try {
+                const armazenados = JSON.parse(localStorage.getItem('pedidos_loja')) || [];
+                const idx = armazenados.findIndex(p => p.id === criado.legacyId || p.id === novoPedido.id);
+                if (idx !== -1) {
+                    armazenados[idx].serverId = criado._id;
+                    armazenados[idx].serverCreatedAt = criado.createdAt || criado.dataCriacao || new Date().toISOString();
+                    localStorage.setItem('pedidos_loja', JSON.stringify(armazenados));
+                }
+            } catch (e) {
+                console.warn('Não foi possível atualizar localStorage com serverId:', e);
+            }
+            alert('Novo pedido salvo com sucesso!');
+            window.location.href = 'index.html';
+            return;
+        } else {
+            console.warn('Falha ao salvar no servidor, pedido salvo localmente.');
+            alert('Novo pedido salvo localmente (não foi possível salvar no servidor).');
+            window.location.href = 'index.html';
+            return;
+        }
+    } catch (err) {
+        console.warn('Erro ao conectar com a API, pedido salvo localmente:', err.message || err);
+        alert('Novo pedido salvo localmente (sem conexão com o servidor).');
+        window.location.href = 'index.html';
+        return;
+    }
 }
 
 
@@ -707,6 +832,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Adiciona o listener de busca dinâmica
             inputBusca.addEventListener('input', buscarHistorico);
         }
+    }
+
+    // --- LÓGICA DE INICIALIZAÇÃO DA PÁGINA CLIENTES (clientes.html) ---
+    if (document.querySelector('#tabelaClientes')) {
+        carregarClientes();
     }
     
 });
