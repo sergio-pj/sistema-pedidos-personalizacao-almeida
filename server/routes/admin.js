@@ -4,25 +4,28 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/admin');
 
-// Chave secreta para o JWT (em produção, usar variável de ambiente)
+// Chave secreta para o JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_aqui';
+if (!process.env.JWT_SECRET) {
+    console.warn('⚠️ JWT_SECRET não definida no .env. Usando valor padrão inseguro.');
+}
 
 // Rota de cadastro
 router.post('/cadastro', async (req, res) => {
     try {
         const { nome, email, senha, nomeLoja, telefone, plano } = req.body;
 
-        // Verifica se já existe um admin com este email
+        if (!nome || !email || !senha || !nomeLoja || !telefone || !plano) {
+            return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
+        }
+
         const adminExistente = await Admin.findOne({ email });
         if (adminExistente) {
             return res.status(400).json({ message: 'Este e-mail já está em uso' });
         }
 
-        // Criptografa a senha
-        const salt = await bcrypt.genSalt(10);
-        const senhaHash = await bcrypt.hash(senha, salt);
+        const senhaHash = await bcrypt.hash(senha, 10);
 
-        // Cria o novo admin
         const admin = new Admin({
             nome,
             email,
@@ -41,14 +44,12 @@ router.post('/cadastro', async (req, res) => {
 
         await admin.save();
 
-        // Gera o token JWT
         const token = jwt.sign(
             { id: admin._id, email: admin.email },
             JWT_SECRET,
             { expiresIn: '7d' }
         );
 
-        // Remove a senha antes de enviar
         const adminSemSenha = { ...admin.toObject() };
         delete adminSemSenha.senha;
 
@@ -59,7 +60,7 @@ router.post('/cadastro', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Erro ao criar admin:', error);
+        console.error('❌ Erro ao criar admin:', error);
         res.status(500).json({ message: 'Erro ao criar conta' });
     }
 });
@@ -69,26 +70,26 @@ router.post('/login', async (req, res) => {
     try {
         const { email, senha } = req.body;
 
-        // Busca o admin pelo email
+        if (!email || !senha) {
+            return res.status(400).json({ message: 'E-mail e senha são obrigatórios' });
+        }
+
         const admin = await Admin.findOne({ email });
         if (!admin) {
             return res.status(401).json({ message: 'E-mail ou senha inválidos' });
         }
 
-        // Verifica a senha
         const senhaValida = await bcrypt.compare(senha, admin.senha);
         if (!senhaValida) {
             return res.status(401).json({ message: 'E-mail ou senha inválidos' });
         }
 
-        // Gera o token JWT
         const token = jwt.sign(
             { id: admin._id, email: admin.email },
             JWT_SECRET,
             { expiresIn: '7d' }
         );
 
-        // Remove a senha antes de enviar
         const adminSemSenha = { ...admin.toObject() };
         delete adminSemSenha.senha;
 
@@ -99,7 +100,7 @@ router.post('/login', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Erro ao fazer login:', error);
+        console.error('❌ Erro ao fazer login:', error);
         res.status(500).json({ message: 'Erro ao fazer login' });
     }
 });

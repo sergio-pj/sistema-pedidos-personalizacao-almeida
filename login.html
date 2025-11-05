@@ -77,67 +77,76 @@
     <script src="js/main.js"></script>
 
     <script>
-        // *** URL BASE DO SEU SERVIDOR NO VERCEL ***
-        const VERCEL_URL = 'https://sistema-pedidos-personalizacao-alme.vercel.app';
+    const BACKEND_URL = 'https://seu-backend.up.railway.app';
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const senha = document.getElementById('senha').value;
-            const errorMessage = document.getElementById('errorMessage');
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
+    const errorMessage = document.getElementById('errorMessage');
+
+    if (!email || !senha) {
+        errorMessage.textContent = 'Preencha todos os campos';
+        errorMessage.style.display = 'block';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/admin/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify({ email, senha })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('adminData', JSON.stringify(data.admin));
 
             try {
-                // CORREÇÃO 1/2: Ajuste no endpoint de Login
-                const response = await fetch(`${VERCEL_URL}/api/admin/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, senha })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    // Salva o token e dados do admin
-                    localStorage.setItem('adminToken', data.token);
-                    localStorage.setItem('adminData', JSON.stringify(data.admin));
-
-                    // Executa sincronização reutilizável (função em js/main.js se disponível)
-                    try {
-                        if (typeof syncPendingPedidos === 'function') {
-                            await syncPendingPedidos(data.token, data.admin._id);
-                        } else {
-                            // fallback: se não existe a função, mantém o comportamento anterior simples
-                            const pedidosKey = 'pedidos_loja_' + data.admin._id;
-                            
-                            // CORREÇÃO 2/2: Ajuste no endpoint da lista de Pedidos (fallback)
-                            const respList = await fetch(`${VERCEL_URL}/api/pedidos`, { headers: { 'Authorization': 'Bearer ' + data.token } });
-                            
-                            if (respList.ok) {
-                                const serverList = await respList.json();
-                                localStorage.setItem(pedidosKey, JSON.stringify(serverList));
-                            }
-                        }
-                    } catch (e) {
-                        console.warn('Erro ao executar syncPendingPedidos após login:', e);
-                    }
-
-                    // Redireciona para a página principal
-                    window.location.href = 'index.html';
-
-                    // Redireciona para a página principal (Linha duplicada, mantive uma)
-                    // window.location.href = 'index.html'; 
+                if (typeof syncPendingPedidos === 'function') {
+                    await syncPendingPedidos(data.token, data.admin._id);
                 } else {
-                    const error = await response.json();
-                    errorMessage.textContent = error.message || 'E-mail ou senha inválidos';
-                    errorMessage.style.display = 'block';
+                    const pedidosKey = 'pedidos_loja_' + data.admin._id;
+                    const respList = await fetch(`${BACKEND_URL}/api/pedidos`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + data.token
+                        },
+                        mode: 'cors'
+                    });
+
+                    if (respList.ok) {
+                        const serverList = await respList.json();
+                        localStorage.setItem(pedidosKey, JSON.stringify(serverList));
+                    }
                 }
-            } catch (error) {
-                errorMessage.textContent = 'Erro ao conectar com o servidor';
-                errorMessage.style.display = 'block';
+            } catch (e) {
+                console.warn('Erro ao sincronizar pedidos:', e);
             }
-        });
-    </script>
+
+            window.location.href = 'index.html';
+        } else {
+            let error;
+            try {
+                error = await response.json();
+            } catch {
+                error = { message: 'Erro inesperado no login' };
+            }
+            errorMessage.textContent = error.message || 'E-mail ou senha inválidos';
+            errorMessage.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Erro de conexão:', error);
+        errorMessage.textContent = 'Erro ao conectar com o servidor';
+        errorMessage.style.display = 'block';
+    }
+});
+
+</script>
+
 </body>
 </html>
