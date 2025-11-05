@@ -1,3 +1,8 @@
+// Importa a configuração
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000/api'
+    : 'https://sistema-pedidos-personalizacao-almeida.vercel.app/api';
+
 // --- FUNÇÃO DE UTILIDADE ---
 function gerarId() {
     // Retorna o timestamp atual (em milissegundos) como ID único.
@@ -85,7 +90,7 @@ async function syncPendingPedidos(token = null, adminId = null) {
             for (let attempt = 1; attempt <= 3 && !synced; attempt++) {
                 try {
                     // check existing by legacyId
-                    const respCheck = await fetch('http://localhost:3000/api/pedidos', { headers: { 'Authorization': 'Bearer ' + token } });
+                    const respCheck = await fetch(`${API_URL}/pedidos`, { headers: { 'Authorization': 'Bearer ' + token } });
                     if (respCheck.ok) {
                         const serverList = await respCheck.json();
                         const found = serverList.find(s => String(s.legacyId) === String(p.id) || String(s.legacyId) === String(p.legacyId));
@@ -104,7 +109,7 @@ async function syncPendingPedidos(token = null, adminId = null) {
                     // try create
                     const headersSync = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
                     const body = { legacyId: p.id, ...p, dataCriacao: p.dataCriacao || p.id };
-                    const respSync = await fetch('http://localhost:3000/api/pedidos', { method: 'POST', headers: headersSync, body: JSON.stringify(body) });
+                    const respSync = await fetch(`${API_URL}/pedidos`, { method: 'POST', headers: headersSync, body: JSON.stringify(body) });
                     if (respSync.ok) {
                         const criado = await respSync.json();
                         const armazenados = JSON.parse(localStorage.getItem(pedidosKey) || '[]');

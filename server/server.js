@@ -1,5 +1,5 @@
 // server.js
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -11,7 +11,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- MIDDLEWARES ---
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://sistema-pedidos-personalizacao-almeida.vercel.app'],
+    credentials: true
+}));
 app.use(express.json());
 
 // --- ROTAS ---
