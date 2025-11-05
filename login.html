@@ -1,150 +1,126 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistema de Pedidos</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .login-form input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .login-form button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .login-form button:hover {
-            background-color: #45a049;
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .register-link a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-
-        .error-message {
-            color: #ff0000;
-            text-align: center;
-            margin-bottom: 10px;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <h2 style="text-align: center; margin-bottom: 20px;">Login</h2>
-        <div id="errorMessage" class="error-message"></div>
-        <form id="loginForm" class="login-form">
-            <input type="email" id="email" placeholder="E-mail" required>
-            <input type="password" id="senha" placeholder="Senha" required>
-            <button type="submit">Entrar</button>
-        </form>
-        <div class="register-link">
-            <a href="cadastro.html">Não tem uma conta? Cadastre-se</a>
-        </div>
-    </div>
-
-    <script src="js/main.js"></script>
-
-    <script>
-const BACKEND_URL = 'https://sistema-pedidos-personalizacao-alme-six.vercel.app';
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const email = document.getElementById('email').value;
-    const senha = document.getElementById('senha').value;
-    const errorMessage = document.getElementById('errorMessage');
-
-    if (!email || !senha) {
-        errorMessage.textContent = 'Preencha todos os campos';
-        errorMessage.style.display = 'block';
-        return;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Sistema de Pedidos</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    try {
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .login-form input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    .login-form button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .login-form button:hover {
+      background-color: #45a049;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .register-link a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    .error-message {
+      color: #ff0000;
+      text-align: center;
+      margin-bottom: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2 style="text-align: center; margin-bottom: 20px;">Login</h2>
+    <div id="errorMessage" class="error-message"></div>
+    <form id="loginForm" class="login-form">
+      <input type="email" id="email" placeholder="E-mail" required>
+      <input type="password" id="senha" placeholder="Senha" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="register-link">
+      <a href="cadastro.html">Não tem uma conta? Cadastre-se</a>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = 'https://sistema-pedidos-personalizacao-alme-six.vercel.app';
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.style.display = 'none';
+
+      try {
         const response = await fetch(`${BACKEND_URL}/api/admin/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, senha })
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha })
         });
 
         if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem('adminToken', data.token);
-            localStorage.setItem('adminData', JSON.stringify(data.admin));
+          const data = await response.json();
+          localStorage.setItem('adminToken', data.token);
+          localStorage.setItem('adminData', JSON.stringify(data.admin));
 
-            try {
-                if (typeof syncPendingPedidos === 'function') {
-                    await syncPendingPedidos(data.token, data.admin._id);
-                } else {
-                    const pedidosKey = 'pedidos_loja_' + data.admin._id;
-                    const respList = await fetch(`${BACKEND_URL}/api/pedidos`, {
-                        headers: {
-                            'Authorization': 'Bearer ' + data.token
-                        }
-                    });
-
-                    if (respList.ok) {
-                        const serverList = await respList.json();
-                        localStorage.setItem(pedidosKey, JSON.stringify(serverList));
-                    }
-                }
-            } catch (e) {
-                console.warn('Erro ao sincronizar pedidos:', e);
+          const pedidosKey = 'pedidos_loja_' + data.admin._id;
+          const respList = await fetch(`${BACKEND_URL}/api/pedidos`, {
+            headers: {
+              'Authorization': 'Bearer ' + data.token
             }
+          });
 
-            window.location.href = 'index.html';
+          if (respList.ok) {
+            const serverList = await respList.json();
+            localStorage.setItem(pedidosKey, JSON.stringify(serverList));
+          }
+
+          window.location.href = 'index.html';
         } else {
-            let error;
-            try {
-                error = await response.json();
-            } catch {
-                error = { message: 'Erro inesperado no login' };
-            }
-            errorMessage.textContent = error.message || 'E-mail ou senha inválidos';
-            errorMessage.style.display = 'block';
+          const error = await response.json();
+          errorMessage.textContent = error.message || 'E-mail ou senha inválidos';
+          errorMessage.style.display = 'block';
         }
-    } catch (error) {
+      } catch (error) {
         console.error('Erro de conexão:', error);
         errorMessage.textContent = 'Erro ao conectar com o servidor';
         errorMessage.style.display = 'block';
-    }
-});
-</script>
-
-
+      }
+    });
+  </script>
 </body>
 </html>
