@@ -400,6 +400,47 @@ h1 {
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); 
 }
 
+/* ===== Estilos para Clientes (clientes.html) ===== */
+.plan-panel {
+    width: calc(100% - 60px);
+    margin: 20px 30px;
+    padding: 12px 18px;
+    background: linear-gradient(90deg, #ffffff, #f8fafc);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+    border: 1px solid #e6eef6;
+}
+.plan-panel .plan-left { color: #2A4365; font-weight: bold; }
+.plan-panel .plan-right { text-align: right; }
+.plan-note { display: block; color: #6c757d; font-size: 0.95em; }
+.cliente-count { margin-top: 6px; color: #2A4365; font-weight: bold; }
+
+#tabelaClientes {
+    width: calc(100% - 60px);
+    margin: 10px 30px 40px 30px;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+#tabelaClientes th, #tabelaClientes td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+#tabelaClientes thead th {
+    background-color: #2A4365;
+    color: #fff;
+}
+#tabelaClientes tr:hover { background-color: #f6f8fa; }
+
+@media (max-width: 700px) {
+    .plan-panel { flex-direction: column; text-align: center; gap: 8px; }
+    #tabelaClientes { width: calc(100% - 30px); margin: 10px 15px; }
+}
+
 /* Containers de Seção (Informações Básicas, Itens, Detalhes) */
 .secao-form {
     border: 1px solid #dee2e6;
@@ -544,3 +585,52 @@ h1 {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Estilos para Sincronização (badges e botões) ===== */
+.sync-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-left: 8px;
+}
+.sync-pendente { background-color: #ffc107; color: #2A2A2A; }
+.sync-erro { background-color: #dc3545; color: #fff; }
+.sync-ok { background-color: #28a745; color: #fff; }
+
+.btn-sync {
+    background-color: #17a2b8; /* teal */
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 6px;
+}
+.btn-sync:hover { opacity: 0.9; }
+
+/* Toaster / Toasts */
+.toast-container {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.toast {
+    min-width: 200px;
+    max-width: 360px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    font-weight: 600;
+}
+.toast-info { background: #17a2b8; }
+.toast-success { background: #28a745; }
+.toast-error { background: #dc3545; }
+

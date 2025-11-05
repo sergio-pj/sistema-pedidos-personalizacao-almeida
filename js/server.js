@@ -4,54 +4,28 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const adminRoutes = require('./routes/admin');
+const pedidosRoutes = require('./routes/pedidos');
+const clientesRoutes = require('./routes/clientes');
 
 const app = express();
-const PORT = process.env.PORT || 3000; // A API rodará na porta 3000 por padrão
+const PORT = process.env.PORT || 3000;
 
 // --- MIDDLEWARES ---
-app.use(cors()); // Permite que o frontend acesse esta API
-app.use(express.json()); // Habilita o uso de JSON no corpo das requisições (POST/PUT)
+app.use(cors());
+app.use(express.json());
 
-// --- 1. CONEXÃO COM O MONGODB (Atlas ou local) ---
+// --- ROTAS ---
+app.use('/api/admin', adminRoutes);
+app.use('/api/pedidos', pedidosRoutes);
+app.use('/api/clientes', clientesRoutes);
+
+// --- CONEXÃO COM O MONGODB ---
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/pedidos_db';
 
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Conexão com MongoDB estabelecida com sucesso!'))
     .catch(err => console.error('Erro ao conectar ao MongoDB:', err));
-
-
-// --- 2. MODELOS (Mongoose Schemas) ---
-const clienteSchema = new mongoose.Schema({
-    nomeCliente: { type: String, required: true },
-    contato: { type: String, default: '' }, // Contato/WhatsApp
-    endereco: { type: String, default: "" },
-}, { timestamps: true });
-
-const Cliente = mongoose.model('Cliente', clienteSchema);
-
-const itemSchema = new mongoose.Schema({
-    nome: String,
-    qtd: Number,
-    precoUn: Number,
-    totalLinha: Number
-}, { _id: false });
-
-const pedidoSchema = new mongoose.Schema({
-    legacyId: { type: Number, default: null }, // para compatibilidade com dados locais existentes
-    nomeCliente: { type: String, required: true },
-    contato: { type: String, default: '' },
-    numeroPedido: { type: String, default: '' },
-    formaPagamento: { type: String, default: 'Pendente' },
-    dataEntrega: { type: Date },
-    itens: [itemSchema],
-    detalhesTamanho: { type: String, default: '' },
-    valorSinal: { type: Number, default: 0 },
-    valorTotal: { type: Number, default: 0 },
-    status: { type: String, default: 'A Fazer' },
-    dataCriacao: { type: Date, default: Date.now }
-}, { timestamps: true });
-
-const Pedido = mongoose.model('Pedido', pedidoSchema);
 
 
 // --- 3. ROTAS DA API ---

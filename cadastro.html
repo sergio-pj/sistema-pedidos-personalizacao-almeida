@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Sistema de Pedidos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cadastro-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .cadastro-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .cadastro-form input, .cadastro-form select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .cadastro-form button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .cadastro-form button:hover {
+            background-color: #45a049;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .error-message {
+            color: #ff0000;
+            text-align: center;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-group > * {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="cadastro-container">
+        <h2 style="text-align: center; margin-bottom: 20px;">Cadastro</h2>
+        <div id="errorMessage" class="error-message"></div>
+        <form id="cadastroForm" class="cadastro-form">
+            <input type="text" id="nome" placeholder="Nome completo" required>
+            <div class="form-group">
+                <input type="email" id="email" placeholder="E-mail" required>
+                <input type="tel" id="telefone" placeholder="Telefone" required>
+            </div>
+            <input type="text" id="nomeLoja" placeholder="Nome da sua loja" required>
+            <div class="form-group">
+                <input type="password" id="senha" placeholder="Senha" required>
+                <input type="password" id="confirmaSenha" placeholder="Confirme a senha" required>
+            </div>
+            <select id="plano" required>
+                <option value="basic">Plano Básico - Grátis</option>
+                <option value="premium">Plano Premium</option>
+            </select>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <div class="login-link">
+            <a href="login.html">Já tem uma conta? Faça login</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
+            const nomeLoja = document.getElementById('nomeLoja').value;
+            const senha = document.getElementById('senha').value;
+            const confirmaSenha = document.getElementById('confirmaSenha').value;
+            const plano = document.getElementById('plano').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (senha !== confirmaSenha) {
+                errorMessage.textContent = 'As senhas não coincidem';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/cadastro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nome,
+                        email,
+                        telefone,
+                        nomeLoja,
+                        senha,
+                        plano
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Salva o token e dados do admin
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminData', JSON.stringify(data.admin));
+                    // Limpa cache local de pedidos apenas para esta conta (evita mistura entre contas)
+                    localStorage.removeItem('pedidos_loja_' + data.admin._id);
+                    // Redireciona para a página principal
+                    window.location.href = 'index.html';
+                } else {
+                    const error = await response.json();
+                    errorMessage.textContent = error.message || 'Erro ao criar conta';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Erro ao conectar com o servidor';
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

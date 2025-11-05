@@ -16,12 +16,27 @@
             <a href="historico.html">Histórico de Clientes</a>
             <a href="clientes.html">Clientes</a>
         </nav>
+        <div id="authControls" style="margin-left: auto; display:flex; align-items:center; gap:10px; padding-right:10px;">
+            <!-- preenchido por js -->
+        </div>
     </header>
 
     <h1>Clientes Cadastrados</h1>
 
     <div id="clientesContainer">
         <button id="btnNovoCliente" onclick="window.location.href='novo-pedido.html'">+ Cadastrar Novo Pedido / Cliente</button>
+
+        <div id="planSummary" class="relatorio-card plan-panel">
+            <div class="plan-left">
+                <strong>Plano atual</strong>
+                <div id="planList">Carregando plano...</div>
+            </div>
+            <div class="plan-right">
+                <span id="planNote" class="plan-note">Recursos adicionais disponíveis para assinantes.</span>
+                <div id="clienteCount" class="cliente-count"></div>
+            </div>
+        </div>
+
         <table id="tabelaClientes">
             <thead>
                 <tr>
