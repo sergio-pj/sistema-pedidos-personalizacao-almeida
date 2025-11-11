@@ -74,8 +74,9 @@
     </div>
   </div>
 
+  <script src="js/config.js"></script>
   <script>
-    const BACKEND_URL = 'https://sistema-pedidos-personalizacao-alme-six.vercel.app';
+    const API_URL = window.API_CONFIG ? window.API_CONFIG.getApiUrl() : 'http://localhost:3000/api';
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -86,7 +87,7 @@
       errorMessage.style.display = 'none';
 
       try {
-        const response = await fetch(`${BACKEND_URL}/api/admin/login`, {
+        const response = await fetch(`${API_URL}/admin/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, senha })
@@ -98,7 +99,7 @@
           localStorage.setItem('adminData', JSON.stringify(data.admin));
 
           const pedidosKey = 'pedidos_loja_' + data.admin._id;
-          const respList = await fetch(`${BACKEND_URL}/api/pedidos`, {
+          const respList = await fetch(`${API_URL}/pedidos`, {
             headers: {
               'Authorization': 'Bearer ' + data.token
             }

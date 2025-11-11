@@ -1,69 +1,74 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
-import Admin from '../../models/admin';
+// cadastro.js - Frontend
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const API_URL = window.API_CONFIG ? window.API_CONFIG.getApiUrl() : 'http://localhost:3000/api';
 
-let isConnected = false;
+document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Método não permitido' });
-  }
+    const nome = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const telefone = document.getElementById('telefone').value.trim();
+    const nomeLoja = document.getElementById('nomeLoja').value.trim();
+    const senha = document.getElementById('senha').value;
+    const confirmaSenha = document.getElementById('confirmaSenha').value;
+    const plano = document.getElementById('plano').value;
 
-  try {
-    if (!isConnected) {
-      await mongoose.connect(process.env.MONGO_URI);
-      isConnected = true;
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.style.display = 'none';
+
+    if (!nome || !email || !telefone || !nomeLoja || !senha || !confirmaSenha) {
+        errorMessage.textContent = 'Todos os campos são obrigatórios';
+        errorMessage.style.display = 'block';
+        return;
     }
 
-    const { nome, email, senha, nomeLoja, telefone, plano } = req.body;
-
-    if (!nome || !email || !senha || !nomeLoja || !telefone || !plano) {
-      return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
+    if (senha !== confirmaSenha) {
+        errorMessage.textContent = 'As senhas não coincidem';
+        errorMessage.style.display = 'block';
+        return;
     }
 
-    const adminExistente = await Admin.findOne({ email });
-    if (adminExistente) {
-      return res.status(400).json({ message: 'Este e-mail já está em uso' });
+    if (senha.length < 6) {
+        errorMessage.textContent = 'A senha deve ter pelo menos 6 caracteres';
+        errorMessage.style.display = 'block';
+        return;
     }
 
-    const senhaHash = await bcrypt.hash(senha, 10);
+    try {
+        const response = await fetch(`${API_URL}/admin/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nome,
+                email,
+                telefone,
+                nomeLoja,
+                senha,
+                plano
+            })
+        });
 
-    const limites = plano === 'premium'
-      ? { maxClientes: 1000, maxPedidosMes: 1000 }
-      : { maxClientes: 50, maxPedidosMes: 100 };
+        const data = await response.json();
 
-    const admin = new Admin({
-      nome,
-      email,
-      senha: senhaHash,
-      nomeLoja,
-      telefone,
-      plano,
-      limites
-    });
+        if (!response.ok) {
+            throw new Error(data.message || 'Erro ao cadastrar');
+        }
 
-    await admin.save();
+        if (data.token) {
+            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('adminData', JSON.stringify(data.admin));
+            
+            alert('Cadastro realizado com sucesso!');
+            window.location.href = 'index.html';
+        } else {
+            throw new Error('Token não recebido');
+        }
 
-    const token = jwt.sign(
-      { id: admin._id, email: admin.email },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    const adminSemSenha = { ...admin.toObject() };
-    delete adminSemSenha.senha;
-
-    res.status(201).json({
-      message: 'Admin criado com sucesso',
-      token,
-      admin: adminSemSenha
-    });
-
-  } catch (error) {
-    console.error('❌ Erro ao criar admin:', error);
-    res.status(500).json({ message: 'Erro ao criar conta' });
-  }
-}
+    } catch (error) {
+        console.error('Erro no cadastro:', error);
+        errorMessage.textContent = error.message || 'Erro ao conectar com o servidor';
+        errorMessage.style.display = 'block';
+    }
+});
