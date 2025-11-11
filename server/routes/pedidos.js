@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
+const { validatePedido } = require('../middleware/validate');
 const Pedido = require('../models/pedido');
 const Cliente = require('../models/cliente');
 const mongoose = require('mongoose');
@@ -20,7 +21,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/pedidos - Criar novo pedido
-router.post('/', async (req, res) => {
+router.post('/', validatePedido, async (req, res) => {
     try {
         const dados = req.body;
 
@@ -54,9 +55,11 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/pedidos/:id - Atualizar pedido
-router.put('/:id', async (req, res) => {
+router.put('/:id', validatePedido, async (req, res) => {
     try {
         const identifier = req.params.id;
+        const dados = req.body;
+        
         const orQueries = [];
         if (mongoose.Types.ObjectId.isValid(identifier)) orQueries.push({ _id: identifier });
         if (!isNaN(Number(identifier))) orQueries.push({ legacyId: Number(identifier) });
@@ -65,9 +68,42 @@ router.put('/:id', async (req, res) => {
             return res.status(400).json({ message: 'Identificador inválido' });
         }
 
+        const allowed = ['nomeCliente', 'contato', 'numeroPedido', 'formaPagamento', 
+                        'dataEntrega', 'itens', 'detalhesTamanho', 'valorSinal', 
+                        'valorTotal', 'status', 'legacyId'];
+        
+        const update = {};
+        for (const key of allowed) {
+            if (key in dados) {
+                if (key === 'dataEntrega') {
+                    update[key] = dados[key] ? new Date(dados[key]) : null;
+                } else if (key === 'valorSinal' || key === 'valorTotal') {
+                    update[key] = Number(dados[key]) || 0;
+                } else {
+                    update[key] = dados[key];
+                }
+            }
+        }
+
+        if (dados.nomeCliente) {
+            await Cliente.findOneAndUpdate(
+                { 
+                    adminId: req.admin._id,
+                    nomeCliente: dados.nomeCliente,
+                    contato: dados.contato || '' 
+                },
+                { 
+                    adminId: req.admin._id,
+                    nomeCliente: dados.nomeCliente,
+                    contato: dados.contato || '' 
+                },
+                { upsert: true, new: true }
+            );
+        }
+
         const pedido = await Pedido.findOneAndUpdate(
             { adminId: req.admin._id, $or: orQueries },
-            req.body,
+            { $set: update },
             { new: true }
         );
 

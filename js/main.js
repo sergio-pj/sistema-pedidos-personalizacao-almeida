@@ -1,7 +1,5 @@
-// Importa a configuração
-const API_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:3000/api'
-    : 'https://sistema-pedidos-personalizacao-almeida.vercel.app/api';
+// Importa a configuração centralizada
+const API_URL = window.API_CONFIG ? window.API_CONFIG.getApiUrl() : 'http://localhost:3000/api';
 
 // --- FUNÇÃO DE UTILIDADE ---
 function gerarId() {

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
+const { validateCliente } = require('../middleware/validate');
 const Cliente = require('../models/cliente');
 
 // Usar o middleware de autenticação em todas as rotas
@@ -18,7 +19,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/clientes - Criar novo cliente
-router.post('/', async (req, res) => {
+router.post('/', validateCliente, async (req, res) => {
     try {
         const novoCliente = new Cliente({
             ...req.body,
