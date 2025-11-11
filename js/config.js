@@ -1,13 +1,13 @@
 // config.js - Configuração centralizada da API
 const API_CONFIG = {
     getApiUrl: () => {
-        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        // Se estiver em localhost, usa localhost:3000
+        if (typeof window !== 'undefined' && 
+            (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
             return 'http://localhost:3000/api';
         }
-        if (typeof window !== 'undefined' && window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:3000/api';
-        }
-        return 'https://sistema-pedidos-personalizacao-almeida.vercel.app/api';
+        // Em produção (Vercel), usa URL relativa (mesmo domínio)
+        return '/api';
     }
 };
 
