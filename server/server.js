@@ -13,11 +13,22 @@ const PORT = process.env.PORT || 3000;
 
 // --- MIDDLEWARES ---
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://sistema-pedidos-personalizacao-almeida.vercel.app',
-    'http://127.0.0.1:5500'
-  ],
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:5500'
+    ];
+    
+    // Permite qualquer subdomínio do Vercel
+    if (!origin || 
+        allowedOrigins.includes(origin) || 
+        origin.includes('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
