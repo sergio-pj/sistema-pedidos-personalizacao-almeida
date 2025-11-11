@@ -7,7 +7,7 @@ let isConnected = false;
 
 const adminSchema = new mongoose.Schema({
     nome: String,
-    email: { type: String, required: true, unique: true },
+    email: { type: String, Drequired: true, unique: true },
     senha: { type: String, required: true },
     nomeLoja: String,
     telefone: String,
