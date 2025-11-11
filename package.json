@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend para sistema de pedidos - Personalizações Almeida",
   "main": "server/server.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js"
@@ -19,5 +20,8 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
